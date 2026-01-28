@@ -115,7 +115,7 @@ hugo --environment production
 ## 배포 프로세스
 
 1. `main` 브랜치에 push
-2. GitHub Actions가 자동으로 빌드
+2. GitHub Actions가 자동으로 빌드"
 3. `gh-pages` 배포
 4. https://korearentaltech.github.io/ 에서 확인
 
