@@ -42,6 +42,10 @@
 ### 콘텐츠
 - `content/_index.md` - 홈페이지 메타데이터
 
+### 로고 및 이미지
+- `static/images/logo.png` - 헤더/푸터 로고
+- `static/images/logo-white.png` - 흰색 배경용 로고
+
 ### 배포
 - `.github/workflows/hugo.yml` - GitHub Actions 배포 워크플로우
 
