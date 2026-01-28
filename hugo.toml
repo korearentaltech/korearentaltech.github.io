@@ -34,10 +34,21 @@ canonifyURLs = true
     [markup.goldmark.renderer]
       unsafe = true
 
+# Disable unused kinds for landing page
+disableKinds = ['taxonomy', 'term', 'section', 'RSS', 'taxonomyTerm']
+
+# Disable default taxonomies
+[taxonomies]
+
 [outputs]
-  home = ['HTML', 'RSS']
+  home = ['HTML']
 
 [sitemap]
   changefreq = 'weekly'
   priority = 0.5
   filename = 'sitemap.xml'
+
+# Homepage specific sitemap priority
+[frontmatter]
+  date = ['date', 'publishDate', 'lastmod']
+  lastmod = ['lastmod', ':git', 'date', 'publishDate']
