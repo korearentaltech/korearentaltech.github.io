@@ -1,0 +1,43 @@
+baseURL = 'https://korearentaltech.github.io/'
+languageCode = 'ko-KR'
+title = '한국렌탈테크 | 단기 렌탈 전문 종합 솔루션'
+theme = 'krt-theme'
+
+# SEO Configuration
+enableRobotsTXT = true
+canonifyURLs = true
+
+[params]
+  description = '복잡한 부가 업무는 없애고, 고정비는 줄이고, 매출은 늘리는 단기 렌탈 전문 종합 솔루션. 공항 수령/반납 대행, 택배 발송/반납 대행, 상품 보관/세척 대행, 단기 렌탈 특화 자사몰, AI 사업 관리 시스템을 제공합니다.'
+  author = '한국렌탈테크'
+  keywords = '단기렌탈, 렌탈솔루션, 공항렌탈, 택배렌탈, 자사몰구축, 재고관리, 한국렌탈테크, Korea Rental Tech'
+  email = 'master@korearentaltech.com'
+  phone = '010-6759-0933'
+
+  # Open Graph / Social Media
+  ogImage = '/images/og-image.png'
+  twitterCard = 'summary_large_image'
+
+  # Brand Colors (Ocean Azure Palette)
+  [params.colors]
+    primary = '#0066CC'
+    secondary = '#3399FF'
+    accent = '#00B894'
+    text = '#1A1A2E'
+    textMuted = '#5C6B7A'
+    background = '#FFFFFF'
+    backgroundAlt = '#F0F7FF'
+    border = '#D0E3F7'
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[outputs]
+  home = ['HTML', 'RSS']
+
+[sitemap]
+  changefreq = 'weekly'
+  priority = 0.5
+  filename = 'sitemap.xml'

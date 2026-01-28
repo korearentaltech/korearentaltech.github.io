@@ -1,0 +1,612 @@
+{{ define "main" }}
+<!-- Hero Section -->
+<section class="hero" id="hero">
+  <div class="container hero-container">
+    <div class="hero-content">
+      <span class="hero-badge">단기 렌탈 전문 솔루션</span>
+      <h1>단기 렌탈 전문<br>종합 솔루션</h1>
+      <p class="hero-subtitle">
+        복잡한 부가 업무는 없애고, 고정비는 줄이고, 매출은 늘리는 솔루션.<br>
+        단기 렌탈 사업에 필요한 모든 인프라를 지원합니다.
+      </p>
+      <div class="hero-services">
+        <span class="service-tag">공항 수령/반납 대행</span>
+        <span class="service-tag">택배 발송/반납 대행</span>
+        <span class="service-tag">상품 보관/세척 대행</span>
+        <span class="service-tag">단기 렌탈 특화 자사몰</span>
+        <span class="service-tag">AI 사업 관리 시스템</span>
+        <span class="service-tag">마케팅</span>
+      </div>
+      <div class="hero-cta">
+        <a href="#contact" class="btn btn-primary btn-lg">상담 신청하기</a>
+        <a href="#services" class="btn btn-secondary btn-lg">서비스 알아보기</a>
+      </div>
+    </div>
+    <div class="hero-graphic">
+      <svg viewBox="0 0 400 400" width="400" height="400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Central Hub -->
+        <circle cx="200" cy="200" r="60" fill="#F0F7FF" stroke="#0066CC" stroke-width="3"/>
+        <circle cx="200" cy="200" r="30" fill="#0066CC"/>
+        <circle cx="200" cy="200" r="15" fill="#00B894"/>
+
+        <!-- Orbit circles -->
+        <circle cx="200" cy="200" r="120" fill="none" stroke="#D0E3F7" stroke-width="2" stroke-dasharray="8 8"/>
+        <circle cx="200" cy="200" r="170" fill="none" stroke="#D0E3F7" stroke-width="1" stroke-dasharray="4 4"/>
+
+        <!-- Service nodes -->
+        <g transform="translate(200, 80)">
+          <circle r="35" fill="#F0F7FF" stroke="#0066CC" stroke-width="2"/>
+          <text y="5" text-anchor="middle" fill="#0066CC" font-size="10" font-weight="600">물류</text>
+        </g>
+        <g transform="translate(320, 200)">
+          <circle r="35" fill="#F0F7FF" stroke="#0066CC" stroke-width="2"/>
+          <text y="5" text-anchor="middle" fill="#0066CC" font-size="10" font-weight="600">IT/운영</text>
+        </g>
+        <g transform="translate(200, 320)">
+          <circle r="35" fill="#F0F7FF" stroke="#0066CC" stroke-width="2"/>
+          <text y="5" text-anchor="middle" fill="#0066CC" font-size="10" font-weight="600">경영</text>
+        </g>
+        <g transform="translate(80, 200)">
+          <circle r="35" fill="#E6FFF7" stroke="#00B894" stroke-width="2"/>
+          <text y="5" text-anchor="middle" fill="#00B894" font-size="10" font-weight="600">성장</text>
+        </g>
+
+        <!-- Connecting lines -->
+        <line x1="200" y1="140" x2="200" y2="115" stroke="#3399FF" stroke-width="2"/>
+        <line x1="260" y1="200" x2="285" y2="200" stroke="#3399FF" stroke-width="2"/>
+        <line x1="200" y1="260" x2="200" y2="285" stroke="#3399FF" stroke-width="2"/>
+        <line x1="140" y1="200" x2="115" y2="200" stroke="#00B894" stroke-width="2"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- Service Summary Section -->
+<section class="service-summary section-alt" id="services">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">서비스 요약</span>
+      <h2 class="section-title">단기 렌탈의 전반적인 프로세스에 대한<br>솔루션을 제공합니다</h2>
+      <p class="section-desc">
+        단기 렌탈 사업에 필요한 모든 인프라를 지원하여 업무가 쉬워지고 성장에만 집중할 수 있는 환경을 제공합니다.
+      </p>
+    </div>
+
+    <div class="summary-flow">
+      <div class="summary-card" data-animate>
+        <div class="summary-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+        </div>
+        <h3>물류</h3>
+        <ul>
+          <li>공항 수령/반납 대행</li>
+          <li>택배 발송/반납 대행</li>
+          <li>상품 보관/세척 대행</li>
+        </ul>
+      </div>
+
+      <div class="summary-arrow">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+
+      <div class="summary-card" data-animate>
+        <div class="summary-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </div>
+        <h3>IT / 운영</h3>
+        <ul>
+          <li>단기렌탈 특화 자사몰</li>
+          <li>재고 스케줄 관리/할당</li>
+          <li>먹튀 방지 / 신분 인증</li>
+        </ul>
+      </div>
+
+      <div class="summary-arrow">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+
+      <div class="summary-card" data-animate>
+        <div class="summary-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+        </div>
+        <h3>경영</h3>
+        <ul>
+          <li>매출/감가상각 관리</li>
+          <li>인건비/임대료 관리</li>
+          <li>상품별 수익률 관리</li>
+        </ul>
+      </div>
+
+      <div class="summary-arrow">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+
+      <div class="summary-card summary-result" data-animate>
+        <div class="summary-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+          </svg>
+        </div>
+        <h3>고객사 - 성장에 집중</h3>
+        <ul>
+          <li>매출 증대 & 사업 성장</li>
+          <li>자동화로 고정비 절감</li>
+          <li>정확한 수익성 파악</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="summary-note">고객사 선택형으로 원하는 서비스만 골라 신청 가능</p>
+  </div>
+</section>
+
+<!-- Process Flow Section -->
+<section class="process-section" id="process">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">전체 프로세스 한 눈에 보기</h2>
+      <p class="section-desc">전체 프로세스 온라인화로 웹/앱으로 조회 및 관리 가능</p>
+    </div>
+
+    <div class="process-diagram">
+      <p class="process-highlight">*원하시는 서비스만 선택하여 신청이 가능합니다</p>
+
+      <div class="process-main">
+        <div class="process-step">
+          <div class="process-step-box">신청</div>
+          <span class="process-step-label">단기 렌탈 특화<br>자사몰 구축/운영</span>
+        </div>
+        <span class="process-arrow">&#10132;</span>
+        <div class="process-step">
+          <div class="process-step-box">(필요시) 신분확인</div>
+          <span class="process-step-label">신분증 확인/<br>소득 조회 솔루션</span>
+        </div>
+        <span class="process-arrow">&#10132;</span>
+        <div class="process-step">
+          <div class="process-step-box">재고 확인&할당</div>
+          <span class="process-step-label">재고 관리 솔루션<br>(온라인시스템+창고 제공)</span>
+        </div>
+      </div>
+
+      <div class="process-branches">
+        <div class="process-branch">
+          <span class="branch-label">택배 수령시</span>
+          <div class="branch-steps">
+            <span class="branch-step">택배 발송</span>
+            <span class="process-arrow">&#10132;</span>
+            <span class="branch-step">수령</span>
+            <span class="process-arrow">&#10132;</span>
+            <span class="branch-step">반납</span>
+            <span class="process-arrow">&#10132;</span>
+            <span class="branch-step">택배 반납</span>
+            <span class="process-arrow">&#10132;</span>
+            <span class="branch-step highlight">정상동작 확인 & 세척</span>
+          </div>
+        </div>
+        <div class="process-branch">
+          <span class="branch-label">공항 수령시</span>
+          <div class="branch-steps">
+            <span class="branch-step">공항 이동</span>
+            <span class="process-arrow">&#10132;</span>
+            <span class="branch-step">수령</span>
+            <span class="process-arrow">&#10132;</span>
+            <span class="branch-step">반납</span>
+            <span class="process-arrow">&#10132;</span>
+            <span class="branch-step highlight">정상동작 확인 & 세척</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Logistics Service Section -->
+<section class="comparison-section" id="logistics">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">상세 소개</span>
+      <h2 class="section-title">물류 관리 서비스</h2>
+      <p class="section-desc">
+        상품 보관, 공항 수령/반납, 택배 발송/반납, 세척까지 대행하여 상품 관리에 대한 부담을 줄여드립니다.
+      </p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+          </svg>
+        </div>
+        <h3>공항 수령/반납</h3>
+        <p>공항에 상주하며 상품 수령/반납 지원</p>
+      </div>
+
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+        </div>
+        <h3>상품 보관</h3>
+        <p>인천공항 인근 창고 보관 서비스<br>부피당 과금으로 보관료 부담 하락</p>
+      </div>
+
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+          </svg>
+        </div>
+        <h3>택배 발송/반납</h3>
+        <p>택배 수령 요청시 택배 발송/반납 관리<br>상품보관 솔루션 이용시에 사용 가능</p>
+      </div>
+
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </div>
+        <h3>세척 대행</h3>
+        <p>고객이 상품 반납시 검수 & 세척 진행</p>
+      </div>
+    </div>
+
+    <p class="summary-note" style="margin-top: var(--spacing-xl);">+ 온라인 시스템 제공으로 전면 웹/앱으로 관리 가능</p>
+
+    <!-- Problem vs Solution -->
+    <div class="comparison-grid" style="margin-top: var(--spacing-3xl);">
+      <div class="comparison-card problem-card" data-animate>
+        <div class="comparison-header">
+          <span style="font-size: 1.5rem;">&#128552;</span>
+          <h3>기존의 문제</h3>
+        </div>
+        <div class="comparison-item">
+          <h4>직접 고용 리스크</h4>
+          <ul>
+            <li>점점 높아지는 인건비로 인한 <strong>고정비 부담</strong></li>
+            <li>불성실 직원, 퇴사시마다 채용/교육 필요, 노동청 신고 등 <strong>높은 관리 부담</strong></li>
+          </ul>
+        </div>
+        <div class="comparison-item">
+          <h4>직접 운영시</h4>
+          <ul>
+            <li>이동시간, 불확실한 스케줄로 사업보단 운영에 시간이 쓰여 <strong>사업 확장 지연</strong></li>
+            <li>컴플레인, 반납지연, 분실 <strong>응대 부담</strong></li>
+          </ul>
+        </div>
+        <div class="comparison-item">
+          <h4>외주 위탁시</h4>
+          <ul>
+            <li>카톡 기반 단순 수령/반납만 제공하여 재고 관리, 통계 등 <strong>편의 서비스 부재</strong></li>
+            <li>당일 신청 불가, 브랜드 교육 부재로 인한 <strong>고객 경험 저하로 재구매율 하락</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="comparison-card solution-card" data-animate>
+        <div class="comparison-header">
+          <span style="font-size: 1.5rem;">&#10024;</span>
+          <h3>단기 렌탈 전문 솔루션</h3>
+        </div>
+        <div class="comparison-item">
+          <h4>유연한 요금제로 부담 하락 및 고용 리스크 해소</h4>
+          <ul>
+            <li>건당 과금, 기본료+건당 과금 등 유연한 요금제로 <strong>금액 부담 하락</strong></li>
+            <li>직원 관리 불필요로 <strong>노무 리스크, 관리 스트레스 해소</strong></li>
+          </ul>
+        </div>
+        <div class="comparison-item">
+          <h4>최상의 고객 경험 제공</h4>
+          <ul>
+            <li>브랜드 스티커 부착, 세척 등 <strong>브랜딩과 고객 관계 관리에 대한 솔루션 제공</strong></li>
+            <li>강성 고객까지도 재구매를 이끌어 낼 수 있는 <strong>철저한 직원교육</strong></li>
+          </ul>
+        </div>
+        <div class="comparison-item">
+          <h4>체계적인 자동화 시스템 제공</h4>
+          <ul>
+            <li>고객 정보만 등록하면 재고 자동 할당, 수령/반납 알림 등 <strong>프로세스 자동 처리</strong></li>
+            <li>상품별 통계, 매출 통계 등 <strong>체계화된 관리 시스템 제공</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- E-commerce Solution Section -->
+<section class="ecommerce-section" id="ecommerce">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">상세 소개</span>
+      <h2 class="section-title">자사몰 구축/운영</h2>
+      <p class="section-desc">
+        단기 렌탈에 딱 맞는 사용성 높은 UI를 가진 자사몰 구축/운영 솔루션을 제공합니다.
+      </p>
+    </div>
+
+    <div class="ecommerce-content">
+      <div class="ecommerce-problem" data-animate>
+        <h3>
+          <span style="font-size: 1.3rem;">&#9888;</span>
+          기존 커머스의 한계
+        </h3>
+        <p style="margin-bottom: var(--spacing-md); color: var(--text);">
+          <strong>기존 커머스 솔루션, 스마트스토어</strong>는 단기 렌탈에 맞지 않습니다.
+        </p>
+        <ul>
+          <li>수령일/반납일 선택 기능이 없고 날짜별 재고 확인 불가</li>
+          <li>고객이 대여 가능 여부 파악 어려움</li>
+          <li>"대여 일수 만큼 수량 추가"와 같이 사용이 어려운 UI로 인해 구매 욕구 저하</li>
+        </ul>
+        <div style="margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px solid rgba(0,0,0,0.1);">
+          <p style="margin: 0; font-weight: 600; color: var(--text);">결과적으로</p>
+          <ul style="margin-top: var(--spacing-sm);">
+            <li>고객 사용성 저하로 이탈률 증가, 매출 기회 손실</li>
+            <li>수동 재고 관리로 더블 부킹 위험</li>
+            <li>브랜드 차별화 어려움</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ecommerce-features" data-animate>
+        <div class="ecommerce-features-header">
+          <span style="font-size: 1.3rem;">&#127919;</span>
+          <h3>한국렌탈테크 자사몰 솔루션</h3>
+        </div>
+        <div class="ecommerce-grid">
+          <div class="ecommerce-feature">
+            <div class="ecommerce-feature-icon">&#127912;</div>
+            <h4>브랜드 커스터마이징</h4>
+            <p>자사 도메인, 로고, 색상<br>브랜드 아이덴티티 반영</p>
+          </div>
+          <div class="ecommerce-feature">
+            <div class="ecommerce-feature-icon">&#128101;</div>
+            <h4>고객 데이터 소유</h4>
+            <p>재구매 유도, 타겟 마케팅<br>고객 정보를 활용한 다양한 마케팅 가능</p>
+          </div>
+          <div class="ecommerce-feature">
+            <div class="ecommerce-feature-icon">&#128197;</div>
+            <h4>기간별 재고 관리 / 자동 주문 할당</h4>
+            <p>캘린더 UI로 날짜별 가용 재고 실시간 확인<br>주문시 재고 자동 배정으로 더블 부킹 차단</p>
+          </div>
+          <div class="ecommerce-feature">
+            <div class="ecommerce-feature-icon">&#128176;</div>
+            <h4>유연한 가격 정책</h4>
+            <p>리뷰 할인, 평일 할인 등<br>유연한 할인 정책으로 판매 성과 상승</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Credit Check Section -->
+<section class="credit-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">상세 소개</span>
+      <h2 class="section-title">신용 확인 솔루션</h2>
+      <p class="section-desc">
+        고가의 물품을 대여하는 경우, 신분증 확인이나 인증서 기반 소득 정보 제공으로 먹튀를 방지할 수 있습니다.
+      </p>
+    </div>
+
+    <div class="credit-flow" data-animate>
+      <h3 class="credit-flow-title">신용 확인 프로세스</h3>
+      <div class="credit-flow-diagram">
+        <div class="credit-step">
+          <div class="credit-step-box">대여 신청</div>
+        </div>
+        <span class="process-arrow">&#10132;</span>
+        <div class="credit-step">
+          <div class="credit-step-box">(필요시) 신분확인</div>
+        </div>
+        <span class="process-arrow">&#10132;</span>
+        <div class="credit-step">
+          <div class="credit-step-box">인증서 인증 / 신분증 업로드</div>
+        </div>
+        <span class="process-arrow">&#10132;</span>
+        <div class="credit-step">
+          <div class="credit-step-box">소득정보 조회</div>
+        </div>
+        <span class="process-arrow">&#10132;</span>
+        <div class="credit-step">
+          <div class="credit-step-box">관리자 확인</div>
+        </div>
+        <span class="process-arrow">&#10132;</span>
+        <div class="credit-step">
+          <div class="credit-step-box highlight">대여 수락</div>
+        </div>
+      </div>
+      <p class="credit-note">*자사몰 솔루션을 이용하지 않더라도 사용이 가능합니다. (추가 비용 발생)</p>
+    </div>
+  </div>
+</section>
+
+<!-- Marketing Section -->
+<section class="marketing-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">상세 소개</span>
+      <h2 class="section-title">마케팅 솔루션</h2>
+      <p class="section-desc">
+        고객사의 매출 향상을 위한 모든 수단을 제공합니다
+      </p>
+    </div>
+
+    <div class="marketing-grid">
+      <div class="marketing-card" data-animate>
+        <h3>마케팅 대행</h3>
+        <ul class="marketing-list">
+          <li>SNS 마케팅</li>
+          <li>콘텐츠 마케팅 (자사몰 내 콘텐츠 시스템 제공)</li>
+          <li>커뮤니티 마케팅</li>
+          <li>스마트스토어</li>
+          <li>모든 마케팅 전략 상담 가능</li>
+        </ul>
+      </div>
+      <div class="marketing-card" data-animate>
+        <h3>상품 외부 사이트 노출</h3>
+        <ul class="marketing-list">
+          <li>모아보기 사이트, 커머스 등 상품 외부 노출 지원</li>
+          <li class="preparing">준비 중</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">한 눈에 보기</span>
+      <h2 class="section-title">서비스 한 눈에 보기</h2>
+      <p class="section-desc">
+        각 서비스 중 필요한 것만 선택하셔서 신청이 가능합니다.
+      </p>
+    </div>
+
+    <div class="pricing-table-wrapper">
+      <table class="pricing-table">
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>서비스명</th>
+            <th>과금 형태</th>
+            <th>과금 주기</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="pricing-category">
+            <td colspan="4">물류 관리</td>
+          </tr>
+          <tr>
+            <td>물류 관리</td>
+            <td>공항 수령/반납 대행</td>
+            <td>건당 과금 or 고정금액+건당 과금</td>
+            <td rowspan="8">월 단위</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>택배 발송/반납 대행</td>
+            <td>건당 과금</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>상품 세척 대행</td>
+            <td>건당 과금</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>상품 보관</td>
+            <td>부피당 과금</td>
+          </tr>
+          <tr class="pricing-category">
+            <td colspan="4">운영 자동화</td>
+          </tr>
+          <tr>
+            <td>운영 자동화</td>
+            <td>재고 관리 시스템</td>
+            <td>물류관리 서비스 신청시 무료</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>자사몰 구축/운영</td>
+            <td>초기 구축시 과금 + 이후 월 단위 운영비 과금</td>
+          </tr>
+          <tr class="pricing-category">
+            <td colspan="4">경영</td>
+          </tr>
+          <tr>
+            <td>경영</td>
+            <td>고객 관리 / 서비스 관리</td>
+            <td>서비스 신청시 무료 제공 (메세지 발송은 건당 과금)</td>
+            <td rowspan="2">월 단위</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>데이터 관리/통계</td>
+            <td>서비스 신청시 무료 제공</td>
+          </tr>
+          <tr class="pricing-category">
+            <td colspan="4">마케팅</td>
+          </tr>
+          <tr>
+            <td>마케팅</td>
+            <td>마케팅 대행</td>
+            <td>상담 후 결정</td>
+            <td rowspan="2">-</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>상품 외부 서비스 노출</td>
+            <td>준비 중</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="pricing-note">*서비스는 후불제이기에 첫 달은 비용 부담없이 이용이 가능합니다</p>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section" id="contact">
+  <div class="container">
+    <div class="cta-content">
+      <div class="cta-logo">
+        <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="40" cy="26" r="12" fill="#0066CC"/>
+          <circle cx="40" cy="26" r="6" fill="#00B894"/>
+          <circle cx="18" cy="54" r="8" fill="#0066CC"/>
+          <circle cx="40" cy="62" r="8" fill="#0066CC"/>
+          <circle cx="62" cy="54" r="8" fill="#0066CC"/>
+          <line x1="40" y1="38" x2="18" y2="46" stroke="#3399FF" stroke-width="3"/>
+          <line x1="40" y1="38" x2="40" y2="54" stroke="#3399FF" stroke-width="3"/>
+          <line x1="40" y1="38" x2="62" y2="46" stroke="#3399FF" stroke-width="3"/>
+          <circle cx="18" cy="54" r="3" fill="#00B894"/>
+          <circle cx="40" cy="62" r="3" fill="#00B894"/>
+          <circle cx="62" cy="54" r="3" fill="#00B894"/>
+        </svg>
+      </div>
+      <h2>바로 상담을 받아보세요</h2>
+      <p>빠른 사업 성장을 도와드리겠습니다</p>
+      <div class="cta-buttons">
+        <a href="mailto:{{ .Site.Params.email }}" class="btn btn-primary btn-lg">상담 신청하기</a>
+      </div>
+      <div class="contact-info">
+        <span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          이메일: <a href="mailto:{{ .Site.Params.email }}">{{ .Site.Params.email }}</a>
+        </span>
+        <span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+          </svg>
+          연락처: <a href="tel:{{ .Site.Params.phone }}">{{ .Site.Params.phone }}</a>
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+{{ end }}
