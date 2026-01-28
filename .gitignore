@@ -1,0 +1,21 @@
+### Hugo ###
+public/
+resources/_gen/
+.hugo_build.lock
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+*.http
+out/
+
+### VS Code ###
+.vscode/
+
+### macOS ###
+.DS_Store
+
+### Node (if using npm for tools) ###
+node_modules/
