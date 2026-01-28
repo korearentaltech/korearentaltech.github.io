@@ -59,7 +59,7 @@
 
   <!-- Styles -->
   {{ $style := resources.Get "css/main.css" | minify | fingerprint }}
-  <link rel="stylesheet" href="{{ $style.Permalink }}">
+  <link rel="stylesheet" href="{{ $style.RelPermalink }}">
 
   <!-- Structured Data for Organization (SEO) -->
   <script type="application/ld+json">
@@ -94,6 +94,6 @@
   {{ partial "footer.html" . }}
 
   {{ $js := resources.Get "js/main.js" | minify | fingerprint }}
-  <script src="{{ $js.Permalink }}"></script>
+  <script src="{{ $js.RelPermalink }}"></script>
 </body>
 </html>
