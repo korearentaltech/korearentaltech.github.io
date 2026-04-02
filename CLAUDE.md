@@ -10,7 +10,7 @@
 
 - **회사명**: 한국렌탈테크 (Korea Rental Tech)
 - **서비스**: 단기 렌탈 전문 종합 솔루션
-- **연락처**: master@korearentaltech.com / 010-6759-0933
+- **연락처**: master@korearentaltech.com / 010-8242-2294
 
 ### 핵심 서비스
 
