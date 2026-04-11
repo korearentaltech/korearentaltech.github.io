@@ -1,0 +1,2407 @@
+<!-- v2.2 updated 2026-04-10T08:49:22Z -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loop Design System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            sky: { 50:'#F0F9FF',100:'#DFF2FE',300:'#74D4FF',400:'#00BCFF',500:'#00A6F4' },
+            violet: { 50:'#F5F3FF',100:'#EDE9FE',300:'#C4B4FF',400:'#A684FF',500:'#8E51FF' },
+            rose: { 50:'#FFF1F2',100:'#FFE4E6',300:'#FFA1AD',400:'#FF637E',500:'#FF2056' },
+            emerald: { 50:'#ECFDF5',100:'#D0FAE5',400:'#00D492',500:'#00BC7D' },
+            amber: { 50:'#FFFBEB',100:'#FEF3C6',500:'#FE9A00' },
+            yellow: { 50:'#FEFCE8',100:'#FEF9C2',400:'#FDC700',600:'#D08700',700:'#B27300' },
+            heading: '#101828',
+            body: '#4A5565',
+            secondary: '#6A7282',
+            footerbg: '#1E2939',
+            footertext: '#99A1AF',
+          },
+          boxShadow: { card: '0px 1px 3px rgba(0,0,0,0.1), 0px 1px 2px -1px rgba(0,0,0,0.1)' },
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-hero { background: linear-gradient(135deg, #74D4FF, #C4B4FF, #FFA1AD); }
+    .gradient-cta { background: linear-gradient(90deg, #00BCFF, #A684FF); }
+    .gradient-banner { background: linear-gradient(90deg, #00BCFF, #A684FF); }
+    .gradient-recommend { background: linear-gradient(90deg, #F5F3FF, #FFF1F2); }
+    .gradient-complete { background: linear-gradient(135deg, #F0F9FF, #F5F3FF); }
+    .gradient-before { background: linear-gradient(90deg, #1338BE, #7B08D4); }
+    .gradient-after { background: linear-gradient(90deg, #00BCFF, #A684FF); }
+    .nav-link { @apply text-sm font-medium text-gray-600 hover:text-sky-400 transition-colors cursor-pointer; }
+
+    /* Toggle Switch */
+    .toggle-switch { position: relative; width: 44px; height: 24px; border-radius: 9999px; background: #D1D5DB; cursor: pointer; transition: background 0.2s; }
+    .toggle-switch.active { background: #00BCFF; }
+    .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 9999px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.2s; }
+    .toggle-switch.active::after { transform: translateX(20px); }
+
+    /* Custom Checkbox */
+    .custom-checkbox { width: 20px; height: 20px; border: 2px solid #D1D5DB; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; }
+    .custom-checkbox.checked { background: #00BCFF; border-color: #00BCFF; }
+    .custom-checkbox.disabled { background: #F9FAFB; border-color: #E5E7EB; cursor: not-allowed; }
+
+    /* Custom Radio */
+    .custom-radio { width: 20px; height: 20px; border: 2px solid #D1D5DB; border-radius: 9999px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; }
+    .custom-radio.checked { border-color: #00BCFF; }
+    .custom-radio.checked::after { content: ''; width: 10px; height: 10px; border-radius: 9999px; background: #00BCFF; }
+    .custom-radio.disabled { border-color: #E5E7EB; cursor: not-allowed; }
+
+    /* Skeleton shimmer */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 4px;
+    }
+
+    /* Toast progress */
+    @keyframes toast-progress {
+      from { width: 100%; }
+      to { width: 0%; }
+    }
+    .toast-progress { animation: toast-progress 4s linear forwards; }
+
+    /* Focus ring utility */
+    .input-focus:focus { outline: none; box-shadow: 0 0 0 3px rgba(0, 188, 255, 0.3); border-color: #00BCFF; }
+    .input-error { box-shadow: 0 0 0 3px rgba(255, 99, 126, 0.3); border-color: #FF637E; }
+
+    /* Nav dropdown for mobile */
+    .nav-dropdown { display: none; }
+    .nav-dropdown.open { display: flex; }
+  </style>
+</head>
+<body class="bg-[#F9FAFB] text-body">
+
+  <!-- ========== HEADER ========== -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-[#E5E7EB]">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="logo.svg" alt="Loop" class="h-8">
+        <span class="text-xs font-medium text-secondary mt-0.5">Design System v2.1</span>
+      </div>
+      <nav class="hidden lg:flex items-center gap-5">
+        <a href="#logo" class="nav-link">Logo</a>
+        <a href="#logo-assets" class="nav-link">Assets</a>
+        <a href="#colors" class="nav-link">Colors</a>
+        <a href="#gradients" class="nav-link">Gradients</a>
+        <a href="#buttons" class="nav-link">Buttons</a>
+        <a href="#badges" class="nav-link">Badges</a>
+        <a href="#typography" class="nav-link">Typography</a>
+        <a href="#spacing" class="nav-link">Spacing</a>
+        <a href="#forms" class="nav-link">Forms</a>
+        <a href="#cards" class="nav-link">Cards</a>
+        <a href="#navigation" class="nav-link">Navigation</a>
+        <a href="#modals" class="nav-link">Modals</a>
+        <a href="#progress" class="nav-link">Progress</a>
+        <a href="#tokens" class="nav-link">Tokens</a>
+        <a href="#theme" class="nav-link">Theme</a>
+        <a href="#dos-donts" class="nav-link">Do/Don't</a>
+        <a href="#responsive" class="nav-link">Responsive</a>
+        <a href="#agent-guide" class="nav-link">Agent Guide</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ========== HERO ========== -->
+  <section class="gradient-hero">
+    <div class="max-w-7xl mx-auto px-6 py-24 text-center text-white">
+      <h1 class="text-5xl font-extrabold tracking-tight mb-4">Loop Design System</h1>
+      <p class="text-lg font-medium opacity-90 max-w-2xl mx-auto">Z세대를 위한 밝고 생동감 있는 파스텔 톤 디자인 시스템 v2.1.<br>렌탈 서비스 Loop의 모든 UI를 일관되게 구현합니다.</p>
+      <div class="mt-8 flex justify-center gap-4">
+        <a href="#colors" class="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur text-white font-semibold px-6 py-3 rounded-lg transition">컬러 팔레트 보기 ↓</a>
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-7xl mx-auto px-6 py-16 space-y-24">
+
+    <!-- ========== LOGO ========== -->
+    <section id="logo">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-sky-400 uppercase tracking-widest mb-1">Brand Identity</p>
+        <h2 class="text-3xl font-bold text-heading">로고</h2>
+        <p class="mt-2 text-secondary max-w-xl">Loop의 공식 로고입니다. L + ∞ + p 구조로, 순환 대여 서비스의 무한 루프 컨셉을 시각적으로 표현합니다.</p>
+      </div>
+
+      <!-- Primary Logo -->
+      <div class="bg-white rounded-xl shadow-card p-8 mb-6">
+        <h3 class="text-lg font-semibold text-heading mb-6">Primary Logo (Gradient)</h3>
+        <div class="flex items-center justify-center py-12 bg-gray-50 rounded-xl border border-[#E5E7EB] mb-6">
+          <img src="logo.svg" alt="Loop Logo" class="h-16">
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <p class="text-sm font-medium text-heading mb-2">색상</p>
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded" style="background: linear-gradient(90deg, #38BDF8, #0EA5E9)"></div>
+              <code class="text-xs text-secondary">#38BDF8 → #0EA5E9</code>
+            </div>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-heading mb-2">구조</p>
+            <p class="text-sm text-secondary">L (올 라운드) + ∞ (인피니티 교차) + p (커스텀 볼)</p>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-heading mb-2">최소 크기</p>
+            <p class="text-sm text-secondary">120px (디지털) / 30mm (인쇄)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logo Variants -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-card p-8">
+          <h3 class="text-lg font-semibold text-heading mb-4">White Version</h3>
+          <div class="flex items-center justify-center py-10 bg-[#1E2939] rounded-xl">
+            <img src="logo-white.svg" alt="Loop Logo White" class="h-12">
+          </div>
+          <p class="mt-3 text-sm text-secondary">다크 배경, Footer, 히어로 섹션용</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-card p-8">
+          <h3 class="text-lg font-semibold text-heading mb-4">Flat Version</h3>
+          <div class="flex items-center justify-center py-10 bg-gray-50 rounded-xl border border-[#E5E7EB]">
+            <img src="logo-flat.svg" alt="Loop Logo Flat" class="h-12">
+          </div>
+          <p class="mt-3 text-sm text-secondary">단색 사용이 필요한 경우 (<code>#1A8FFF</code>)</p>
+        </div>
+      </div>
+
+      <!-- Dark + Gradient -->
+      <div class="bg-white rounded-xl shadow-card p-8 mb-6">
+        <h3 class="text-lg font-semibold text-heading mb-4">Dark Background + Gradient</h3>
+        <div class="flex items-center justify-center py-10 bg-[#101828] rounded-xl">
+          <img src="logo.svg" alt="Loop Logo on Dark" class="h-12">
+        </div>
+        <p class="mt-3 text-sm text-secondary">다크 배경에서도 그라데이션 로고 사용 가능 (대비율 7.5:1, WCAG AAA)</p>
+      </div>
+
+      <!-- Logo Usage Rules -->
+      <div class="bg-white rounded-xl shadow-card p-8">
+        <h3 class="text-lg font-semibold text-heading mb-4">사용 규칙</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 class="text-sm font-semibold text-emerald-500 mb-2">✅ Do</h4>
+            <ul class="space-y-2 text-sm text-secondary">
+              <li>• 충분한 여백 확보 (최소 L 세로획 폭만큼)</li>
+              <li>• 공식 색상만 사용 (그라데이션 / #1A8FFF / 화이트)</li>
+              <li>• 비율 고정 (가로세로 비율 변경 금지)</li>
+              <li>• 밝은 배경 → 그라데이션/플랫</li>
+              <li>• 다크 배경 (#101828) → 그라데이션 또는 화이트</li>
+              <li>• 복잡한 배경/사진 → 화이트</li>
+              <li>• 단색 제한 → <code>#1A8FFF</code></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-sm font-semibold text-rose-400 mb-2">❌ Don't</h4>
+            <ul class="space-y-2 text-sm text-secondary">
+              <li>• 로고 색상 임의 변경</li>
+              <li>• 로고 위에 그림자/효과 추가</li>
+              <li>• 로고 회전/기울이기</li>
+              <li>• 120px 미만 크기로 사용</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== LOGO ASSETS ========== -->
+    <section id="logo-assets">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-sky-400 uppercase tracking-widest mb-1">Brand Assets</p>
+        <h2 class="text-3xl font-bold text-heading">Logo Assets v2</h2>
+        <p class="text-secondary mt-2">모든 로고 에셋을 다운로드할 수 있습니다. SVG 원본, PNG 사이즈 베리에이션, 아이콘, Favicon 포함.</p>
+      </div>
+
+      <!-- Download All -->
+      <div class="bg-white rounded-xl shadow-card p-6 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="text-lg font-semibold text-heading">📦 전체 패키지 다운로드</h3>
+          <p class="text-sm text-secondary mt-1">SVG 5개 + PNG 35개 + Favicon — 모든 variant, 모든 사이즈</p>
+        </div>
+        <a href="assets/" class="inline-flex items-center gap-2 bg-sky-400 hover:bg-sky-500 text-white font-semibold px-5 py-2.5 rounded-[10px] transition text-sm" download>에셋 폴더 열기 →</a>
+      </div>
+
+      <!-- SVG Originals -->
+      <div class="bg-white rounded-xl shadow-card p-8 mb-6">
+        <h3 class="text-lg font-semibold text-heading mb-6">SVG 원본 파일</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="border border-[#E5E7EB] rounded-[10px] p-4">
+            <div class="flex items-center justify-center py-6 bg-gray-50 rounded-lg mb-3">
+              <img src="assets/svg/loop-logo-gradient.svg" alt="Gradient" class="h-10">
+            </div>
+            <p class="text-sm font-medium text-heading">Gradient</p>
+            <p class="text-xs text-secondary">#38BDF8 → #0EA5E9</p>
+            <a href="assets/svg/loop-logo-gradient.svg" download class="text-xs text-sky-400 hover:text-sky-500 mt-1 inline-block">SVG 다운로드 ↓</a>
+          </div>
+          <div class="border border-[#E5E7EB] rounded-[10px] p-4">
+            <div class="flex items-center justify-center py-6 bg-gray-50 rounded-lg mb-3">
+              <img src="assets/svg/loop-logo-flat.svg" alt="Flat" class="h-10">
+            </div>
+            <p class="text-sm font-medium text-heading">Flat</p>
+            <p class="text-xs text-secondary">#1A8FFF (단색)</p>
+            <a href="assets/svg/loop-logo-flat.svg" download class="text-xs text-sky-400 hover:text-sky-500 mt-1 inline-block">SVG 다운로드 ↓</a>
+          </div>
+          <div class="border border-[#E5E7EB] rounded-[10px] p-4">
+            <div class="flex items-center justify-center py-6 bg-[#1E2939] rounded-lg mb-3">
+              <img src="assets/svg/loop-logo-white.svg" alt="White" class="h-10">
+            </div>
+            <p class="text-sm font-medium text-heading">White</p>
+            <p class="text-xs text-secondary">#FFFFFF (투명배경)</p>
+            <a href="assets/svg/loop-logo-white.svg" download class="text-xs text-sky-400 hover:text-sky-500 mt-1 inline-block">SVG 다운로드 ↓</a>
+          </div>
+          <div class="border border-[#E5E7EB] rounded-[10px] p-4">
+            <div class="flex items-center justify-center py-6 bg-gray-50 rounded-lg mb-3">
+              <img src="assets/svg/loop-icon-gradient.svg" alt="Icon" class="h-10">
+            </div>
+            <p class="text-sm font-medium text-heading">Icon (Gradient)</p>
+            <p class="text-xs text-secondary">512×512 정사각형</p>
+            <a href="assets/svg/loop-icon-gradient.svg" download class="text-xs text-sky-400 hover:text-sky-500 mt-1 inline-block">SVG 다운로드 ↓</a>
+          </div>
+          <div class="border border-[#E5E7EB] rounded-[10px] p-4">
+            <div class="flex items-center justify-center py-6 bg-gray-50 rounded-lg mb-3">
+              <img src="assets/svg/loop-logo-figma-base.svg" alt="Figma Base" class="h-10">
+            </div>
+            <p class="text-sm font-medium text-heading">Figma Base</p>
+            <p class="text-xs text-secondary">540×220 원본 레이아웃</p>
+            <a href="assets/svg/loop-logo-figma-base.svg" download class="text-xs text-sky-400 hover:text-sky-500 mt-1 inline-block">SVG 다운로드 ↓</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- PNG Logo Variants -->
+      <div class="bg-white rounded-xl shadow-card p-8 mb-6">
+        <h3 class="text-lg font-semibold text-heading mb-6">PNG 로고 — 사이즈 베리에이션</h3>
+        <p class="text-sm text-secondary mb-6">높이 기준 32px ~ 512px. 비율 2.45:1 자동 유지.</p>
+
+        <!-- Gradient PNGs -->
+        <h4 class="text-sm font-semibold text-heading mb-3">🎨 Gradient</h4>
+        <div class="overflow-x-auto mb-6">
+          <table class="w-full text-sm">
+            <thead><tr class="border-b border-[#E5E7EB]">
+              <th class="text-left py-2 text-secondary font-medium">미리보기</th>
+              <th class="text-left py-2 text-secondary font-medium">파일</th>
+              <th class="text-left py-2 text-secondary font-medium">높이</th>
+              <th class="text-left py-2 text-secondary font-medium">용도</th>
+              <th class="text-left py-2 text-secondary font-medium"></th>
+            </tr></thead>
+            <tbody>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-gradient/loop-logo-gradient-h32.png" class="h-4"></td><td class="py-2 text-heading">h32</td><td class="py-2 text-secondary">32px</td><td class="py-2 text-secondary">소형 UI, 헤더</td><td class="py-2"><a href="assets/png/logo-gradient/loop-logo-gradient-h32.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-gradient/loop-logo-gradient-h48.png" class="h-6"></td><td class="py-2 text-heading">h48</td><td class="py-2 text-secondary">48px</td><td class="py-2 text-secondary">네비게이션</td><td class="py-2"><a href="assets/png/logo-gradient/loop-logo-gradient-h48.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-gradient/loop-logo-gradient-h64.png" class="h-8"></td><td class="py-2 text-heading">h64</td><td class="py-2 text-secondary">64px</td><td class="py-2 text-secondary">기본 헤더</td><td class="py-2"><a href="assets/png/logo-gradient/loop-logo-gradient-h64.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-gradient/loop-logo-gradient-h96.png" class="h-10"></td><td class="py-2 text-heading">h96</td><td class="py-2 text-secondary">96px</td><td class="py-2 text-secondary">중형 배너</td><td class="py-2"><a href="assets/png/logo-gradient/loop-logo-gradient-h96.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-gradient/loop-logo-gradient-h128.png" class="h-12"></td><td class="py-2 text-heading">h128</td><td class="py-2 text-secondary">128px</td><td class="py-2 text-secondary">스플래시, OG</td><td class="py-2"><a href="assets/png/logo-gradient/loop-logo-gradient-h128.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-gradient/loop-logo-gradient-h256.png" class="h-14"></td><td class="py-2 text-heading">h256</td><td class="py-2 text-secondary">256px</td><td class="py-2 text-secondary">고해상도, PPT</td><td class="py-2"><a href="assets/png/logo-gradient/loop-logo-gradient-h256.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr><td class="py-2"><img src="assets/png/logo-gradient/loop-logo-gradient-h512.png" class="h-16"></td><td class="py-2 text-heading">h512</td><td class="py-2 text-secondary">512px</td><td class="py-2 text-secondary">인쇄물, 대형</td><td class="py-2"><a href="assets/png/logo-gradient/loop-logo-gradient-h512.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Flat PNGs -->
+        <h4 class="text-sm font-semibold text-heading mb-3">🔵 Flat (#1A8FFF)</h4>
+        <div class="overflow-x-auto mb-6">
+          <table class="w-full text-sm">
+            <thead><tr class="border-b border-[#E5E7EB]">
+              <th class="text-left py-2 text-secondary font-medium">미리보기</th>
+              <th class="text-left py-2 text-secondary font-medium">파일</th>
+              <th class="text-left py-2 text-secondary font-medium">높이</th>
+              <th class="text-left py-2 text-secondary font-medium">용도</th>
+              <th class="text-left py-2 text-secondary font-medium"></th>
+            </tr></thead>
+            <tbody>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-flat/loop-logo-flat-h32.png" class="h-4"></td><td class="py-2 text-heading">h32</td><td class="py-2 text-secondary">32px</td><td class="py-2 text-secondary">소형 UI, 이메일</td><td class="py-2"><a href="assets/png/logo-flat/loop-logo-flat-h32.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-flat/loop-logo-flat-h48.png" class="h-6"></td><td class="py-2 text-heading">h48</td><td class="py-2 text-secondary">48px</td><td class="py-2 text-secondary">네비게이션</td><td class="py-2"><a href="assets/png/logo-flat/loop-logo-flat-h48.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-flat/loop-logo-flat-h64.png" class="h-8"></td><td class="py-2 text-heading">h64</td><td class="py-2 text-secondary">64px</td><td class="py-2 text-secondary">기본 헤더</td><td class="py-2"><a href="assets/png/logo-flat/loop-logo-flat-h64.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-flat/loop-logo-flat-h96.png" class="h-10"></td><td class="py-2 text-heading">h96</td><td class="py-2 text-secondary">96px</td><td class="py-2 text-secondary">중형 배너</td><td class="py-2"><a href="assets/png/logo-flat/loop-logo-flat-h96.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-flat/loop-logo-flat-h128.png" class="h-12"></td><td class="py-2 text-heading">h128</td><td class="py-2 text-secondary">128px</td><td class="py-2 text-secondary">스플래시, OG</td><td class="py-2"><a href="assets/png/logo-flat/loop-logo-flat-h128.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><img src="assets/png/logo-flat/loop-logo-flat-h256.png" class="h-14"></td><td class="py-2 text-heading">h256</td><td class="py-2 text-secondary">256px</td><td class="py-2 text-secondary">고해상도</td><td class="py-2"><a href="assets/png/logo-flat/loop-logo-flat-h256.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr><td class="py-2"><img src="assets/png/logo-flat/loop-logo-flat-h512.png" class="h-16"></td><td class="py-2 text-heading">h512</td><td class="py-2 text-secondary">512px</td><td class="py-2 text-secondary">인쇄물</td><td class="py-2"><a href="assets/png/logo-flat/loop-logo-flat-h512.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- White PNGs -->
+        <h4 class="text-sm font-semibold text-heading mb-3">⚪ White (투명배경)</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead><tr class="border-b border-[#E5E7EB]">
+              <th class="text-left py-2 text-secondary font-medium">미리보기</th>
+              <th class="text-left py-2 text-secondary font-medium">파일</th>
+              <th class="text-left py-2 text-secondary font-medium">높이</th>
+              <th class="text-left py-2 text-secondary font-medium">용도</th>
+              <th class="text-left py-2 text-secondary font-medium"></th>
+            </tr></thead>
+            <tbody>
+              <tr class="border-b border-gray-50"><td class="py-2"><div class="bg-[#1E2939] rounded px-2 py-1 inline-block"><img src="assets/png/logo-white/loop-logo-white-h32.png" class="h-4"></div></td><td class="py-2 text-heading">h32</td><td class="py-2 text-secondary">32px</td><td class="py-2 text-secondary">다크 UI 헤더</td><td class="py-2"><a href="assets/png/logo-white/loop-logo-white-h32.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><div class="bg-[#1E2939] rounded px-2 py-1 inline-block"><img src="assets/png/logo-white/loop-logo-white-h48.png" class="h-6"></div></td><td class="py-2 text-heading">h48</td><td class="py-2 text-secondary">48px</td><td class="py-2 text-secondary">다크 네비게이션</td><td class="py-2"><a href="assets/png/logo-white/loop-logo-white-h48.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><div class="bg-[#1E2939] rounded px-2 py-1 inline-block"><img src="assets/png/logo-white/loop-logo-white-h64.png" class="h-8"></div></td><td class="py-2 text-heading">h64</td><td class="py-2 text-secondary">64px</td><td class="py-2 text-secondary">다크 헤더</td><td class="py-2"><a href="assets/png/logo-white/loop-logo-white-h64.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><div class="bg-[#1E2939] rounded px-2 py-1 inline-block"><img src="assets/png/logo-white/loop-logo-white-h96.png" class="h-10"></div></td><td class="py-2 text-heading">h96</td><td class="py-2 text-secondary">96px</td><td class="py-2 text-secondary">다크 배너</td><td class="py-2"><a href="assets/png/logo-white/loop-logo-white-h96.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><div class="bg-[#1E2939] rounded px-2 py-1 inline-block"><img src="assets/png/logo-white/loop-logo-white-h128.png" class="h-12"></div></td><td class="py-2 text-heading">h128</td><td class="py-2 text-secondary">128px</td><td class="py-2 text-secondary">영상 오버레이</td><td class="py-2"><a href="assets/png/logo-white/loop-logo-white-h128.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr class="border-b border-gray-50"><td class="py-2"><div class="bg-[#1E2939] rounded px-2 py-1 inline-block"><img src="assets/png/logo-white/loop-logo-white-h256.png" class="h-14"></div></td><td class="py-2 text-heading">h256</td><td class="py-2 text-secondary">256px</td><td class="py-2 text-secondary">고해상도 다크</td><td class="py-2"><a href="assets/png/logo-white/loop-logo-white-h256.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+              <tr><td class="py-2"><div class="bg-[#1E2939] rounded px-2 py-1 inline-block"><img src="assets/png/logo-white/loop-logo-white-h512.png" class="h-16"></div></td><td class="py-2 text-heading">h512</td><td class="py-2 text-secondary">512px</td><td class="py-2 text-secondary">인쇄물 (다크)</td><td class="py-2"><a href="assets/png/logo-white/loop-logo-white-h512.png" download class="text-sky-400 hover:text-sky-500">↓</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Icons -->
+      <div class="bg-white rounded-xl shadow-card p-8 mb-6">
+        <h3 class="text-lg font-semibold text-heading mb-6">🔷 앱 아이콘 (정사각형)</h3>
+        <p class="text-sm text-secondary mb-6">Gradient 배경 + 흰색 ∞ 심볼. PWA, 앱스토어, Favicon용.</p>
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-16x16.png" class="max-h-8"></div>
+            <p class="text-xs text-secondary">16×16</p>
+            <a href="assets/png/icon/loop-icon-16x16.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-32x32.png" class="max-h-8"></div>
+            <p class="text-xs text-secondary">32×32</p>
+            <a href="assets/png/icon/loop-icon-32x32.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-48x48.png" class="max-h-10"></div>
+            <p class="text-xs text-secondary">48×48</p>
+            <a href="assets/png/icon/loop-icon-48x48.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-64x64.png" class="max-h-10"></div>
+            <p class="text-xs text-secondary">64×64</p>
+            <a href="assets/png/icon/loop-icon-64x64.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-72x72.png" class="max-h-10"></div>
+            <p class="text-xs text-secondary">72×72</p>
+            <a href="assets/png/icon/loop-icon-72x72.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-96x96.png" class="max-h-12"></div>
+            <p class="text-xs text-secondary">96×96</p>
+            <a href="assets/png/icon/loop-icon-96x96.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-128x128.png" class="max-h-12"></div>
+            <p class="text-xs text-secondary">128×128</p>
+            <a href="assets/png/icon/loop-icon-128x128.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-144x144.png" class="max-h-12"></div>
+            <p class="text-xs text-secondary">144×144</p>
+            <a href="assets/png/icon/loop-icon-144x144.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-192x192.png" class="max-h-14"></div>
+            <p class="text-xs text-secondary">192×192</p>
+            <a href="assets/png/icon/loop-icon-192x192.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-256x256.png" class="max-h-14"></div>
+            <p class="text-xs text-secondary">256×256</p>
+            <a href="assets/png/icon/loop-icon-256x256.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-512x512.png" class="max-h-16"></div>
+            <p class="text-xs text-secondary">512×512</p>
+            <a href="assets/png/icon/loop-icon-512x512.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+          <div class="text-center">
+            <div class="flex items-center justify-center p-3 bg-gray-50 rounded-lg mb-2 aspect-square"><img src="assets/png/icon/loop-icon-1024x1024.png" class="max-h-16"></div>
+            <p class="text-xs text-secondary">1024×1024</p>
+            <a href="assets/png/icon/loop-icon-1024x1024.png" download class="text-xs text-sky-400">↓</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Favicon & Preview -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-card p-8">
+          <h3 class="text-lg font-semibold text-heading mb-4">🌐 Favicon</h3>
+          <div class="flex items-center gap-4">
+            <img src="assets/ico/favicon.ico" alt="Favicon" class="w-8 h-8">
+            <div>
+              <p class="text-sm text-heading">favicon.ico</p>
+              <p class="text-xs text-secondary">16×16, 32×32, 48×48 포함</p>
+              <a href="assets/ico/favicon.ico" download class="text-xs text-sky-400 hover:text-sky-500">다운로드 ↓</a>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-card p-8">
+          <h3 class="text-lg font-semibold text-heading mb-4">🌑 다크 배경 프리뷰</h3>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <div class="bg-[#1E2939] rounded-lg p-2 flex-shrink-0"><img src="assets/png/preview/loop-logo-gradient-on-dark.png" class="h-6"></div>
+              <div>
+                <p class="text-xs text-heading">Gradient on Dark</p>
+                <a href="assets/png/preview/loop-logo-gradient-on-dark.png" download class="text-xs text-sky-400">↓</a>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="bg-[#1E2939] rounded-lg p-2 flex-shrink-0"><img src="assets/png/preview/loop-logo-flat-on-dark.png" class="h-6"></div>
+              <div>
+                <p class="text-xs text-heading">Flat on Dark</p>
+                <a href="assets/png/preview/loop-logo-flat-on-dark.png" download class="text-xs text-sky-400">↓</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== COLORS ==========
+    <section id="colors">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-sky-400 uppercase tracking-widest mb-1">Brand Palette</p>
+        <h2 class="text-3xl font-bold text-heading">컬러 팔레트</h2>
+        <p class="mt-2 text-secondary max-w-xl">Figma에서 추출한 Loop의 핵심 색상 토큰입니다. 각 색상은 명확한 용도와 Tailwind 클래스를 갖습니다.</p>
+      </div>
+
+      <!-- Sky Blue -->
+      <div class="mb-12">
+        <h3 class="text-lg font-bold text-heading mb-1 flex items-center gap-2">
+          <span class="w-4 h-4 rounded-full bg-[#00BCFF]"></span>Sky Blue
+          <span class="text-xs font-medium text-sky-400 bg-sky-50 px-2 py-0.5 rounded-full">Primary Brand</span>
+        </h3>
+        <p class="text-sm text-secondary mb-4">Loop의 주요 브랜드 컬러. CTA, 액센트, 인터랙티브 요소에 사용.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#F0F9FF"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Sky 50</p><p class="text-[11px] font-mono text-secondary">#F0F9FF</p><p class="text-[11px] text-secondary mt-1">섬세한 배경</p><p class="text-[10px] font-mono text-sky-400 mt-1">bg-sky-50</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#DFF2FE"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Sky 100</p><p class="text-[11px] font-mono text-secondary">#DFF2FE</p><p class="text-[11px] text-secondary mt-1">아이콘 배경, 뱃지</p><p class="text-[10px] font-mono text-sky-400 mt-1">bg-sky-100</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#74D4FF"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Sky 300</p><p class="text-[11px] font-mono text-secondary">#74D4FF</p><p class="text-[11px] text-secondary mt-1">그라데이션 배경</p><p class="text-[10px] font-mono text-sky-400 mt-1">bg-sky-300</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#00BCFF"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Sky 400 ★</p><p class="text-[11px] font-mono text-secondary">#00BCFF</p><p class="text-[11px] text-secondary mt-1">CTA 버튼, 액센트</p><p class="text-[10px] font-mono text-sky-400 mt-1">bg-sky-400</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#00A6F4"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Sky 500</p><p class="text-[11px] font-mono text-secondary">#00A6F4</p><p class="text-[11px] text-secondary mt-1">호버 상태</p><p class="text-[10px] font-mono text-sky-400 mt-1">bg-sky-500</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Violet Purple -->
+      <div class="mb-12">
+        <h3 class="text-lg font-bold text-heading mb-1 flex items-center gap-2">
+          <span class="w-4 h-4 rounded-full bg-[#A684FF]"></span>Violet Purple
+        </h3>
+        <p class="text-sm text-secondary mb-4">서브 액션, 그라데이션 중간 색상, 키워드 태그에 사용.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#F5F3FF"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Violet 50</p><p class="text-[11px] font-mono text-secondary">#F5F3FF</p><p class="text-[11px] text-secondary mt-1">섬세한 배경</p><p class="text-[10px] font-mono text-violet-400 mt-1">bg-violet-50</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#EDE9FE"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Violet 100</p><p class="text-[11px] font-mono text-secondary">#EDE9FE</p><p class="text-[11px] text-secondary mt-1">키워드 태그</p><p class="text-[10px] font-mono text-violet-400 mt-1">bg-violet-100</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#C4B4FF"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Violet 300</p><p class="text-[11px] font-mono text-secondary">#C4B4FF</p><p class="text-[11px] text-secondary mt-1">그라데이션 중간</p><p class="text-[10px] font-mono text-violet-400 mt-1">bg-violet-300</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#A684FF"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Violet 400</p><p class="text-[11px] font-mono text-secondary">#A684FF</p><p class="text-[11px] text-secondary mt-1">서브 액션</p><p class="text-[10px] font-mono text-violet-400 mt-1">bg-violet-400</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#8E51FF"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Violet 500</p><p class="text-[11px] font-mono text-secondary">#8E51FF</p><p class="text-[11px] text-secondary mt-1">호버 상태</p><p class="text-[10px] font-mono text-violet-400 mt-1">bg-violet-500</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rose Pink -->
+      <div class="mb-12">
+        <h3 class="text-lg font-bold text-heading mb-1 flex items-center gap-2">
+          <span class="w-4 h-4 rounded-full bg-[#FF637E]"></span>Rose Pink
+        </h3>
+        <p class="text-sm text-secondary mb-4">그라데이션 끝 색상, 강조 영역, 단계 표시에 사용.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#FFF1F2"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Rose 50</p><p class="text-[11px] font-mono text-secondary">#FFF1F2</p><p class="text-[11px] text-secondary mt-1">섬세한 배경</p><p class="text-[10px] font-mono text-rose-400 mt-1">bg-rose-50</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#FFE4E6"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Rose 100</p><p class="text-[11px] font-mono text-secondary">#FFE4E6</p><p class="text-[11px] text-secondary mt-1">강조 영역</p><p class="text-[10px] font-mono text-rose-400 mt-1">bg-rose-100</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#FFA1AD"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Rose 300</p><p class="text-[11px] font-mono text-secondary">#FFA1AD</p><p class="text-[11px] text-secondary mt-1">그라데이션 끝</p><p class="text-[10px] font-mono text-rose-400 mt-1">bg-rose-300</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#FF637E"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Rose 400</p><p class="text-[11px] font-mono text-secondary">#FF637E</p><p class="text-[11px] text-secondary mt-1">단계 표시</p><p class="text-[10px] font-mono text-rose-400 mt-1">bg-rose-400</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB]">
+            <div class="h-24" style="background:#FF2056"></div>
+            <div class="p-3"><p class="text-xs font-bold text-heading">Rose 500</p><p class="text-[11px] font-mono text-secondary">#FF2056</p><p class="text-[11px] text-secondary mt-1">호버 상태</p><p class="text-[10px] font-mono text-rose-400 mt-1">bg-rose-500</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emerald / Amber / Yellow row -->
+      <div class="grid md:grid-cols-3 gap-8 mb-12">
+        <!-- Emerald Green -->
+        <div>
+          <h3 class="text-lg font-bold text-heading mb-1 flex items-center gap-2">
+            <span class="w-4 h-4 rounded-full bg-[#00D492]"></span>Emerald Green
+          </h3>
+          <p class="text-sm text-secondary mb-4">성공 상태, 완료 표시에 사용.</p>
+          <div class="space-y-3">
+            <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB] flex">
+              <div class="w-20 shrink-0" style="background:#D0FAE5"></div>
+              <div class="p-3"><p class="text-xs font-bold text-heading">Emerald 100</p><p class="text-[11px] font-mono text-secondary">#D0FAE5</p><p class="text-[11px] text-secondary">성공 아이콘 배경</p><p class="text-[10px] font-mono text-emerald-500">bg-emerald-100</p></div>
+            </div>
+            <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB] flex">
+              <div class="w-20 shrink-0" style="background:#00D492"></div>
+              <div class="p-3"><p class="text-xs font-bold text-heading">Emerald 400</p><p class="text-[11px] font-mono text-secondary">#00D492</p><p class="text-[11px] text-secondary">완료 단계</p><p class="text-[10px] font-mono text-emerald-500">bg-emerald-400</p></div>
+            </div>
+            <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB] flex">
+              <div class="w-20 shrink-0" style="background:#00BC7D"></div>
+              <div class="p-3"><p class="text-xs font-bold text-heading">Emerald 500</p><p class="text-[11px] font-mono text-secondary">#00BC7D</p><p class="text-[11px] text-secondary">성공 상태</p><p class="text-[10px] font-mono text-emerald-500">bg-emerald-500</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amber Orange -->
+        <div>
+          <h3 class="text-lg font-bold text-heading mb-1 flex items-center gap-2">
+            <span class="w-4 h-4 rounded-full bg-[#FE9A00]"></span>Amber Orange
+          </h3>
+          <p class="text-sm text-secondary mb-4">주의 상태, 알림, 상태 뱃지에 사용.</p>
+          <div class="space-y-3">
+            <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB] flex">
+              <div class="w-20 shrink-0" style="background:#FFFBEB"></div>
+              <div class="p-3"><p class="text-xs font-bold text-heading">Amber 50</p><p class="text-[11px] font-mono text-secondary">#FFFBEB</p><p class="text-[11px] text-secondary">알림 배경</p><p class="text-[10px] font-mono text-amber-500">bg-amber-50</p></div>
+            </div>
+            <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB] flex">
+              <div class="w-20 shrink-0" style="background:#FEF3C6"></div>
+              <div class="p-3"><p class="text-xs font-bold text-heading">Amber 100</p><p class="text-[11px] font-mono text-secondary">#FEF3C6</p><p class="text-[11px] text-secondary">상태 뱃지</p><p class="text-[10px] font-mono text-amber-500">bg-amber-100</p></div>
+            </div>
+            <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB] flex">
+              <div class="w-20 shrink-0" style="background:#FE9A00"></div>
+              <div class="p-3"><p class="text-xs font-bold text-heading">Amber 500</p><p class="text-[11px] font-mono text-secondary">#FE9A00</p><p class="text-[11px] text-secondary">주의 상태</p><p class="text-[10px] font-mono text-amber-500">bg-amber-500</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Yellow Gold -->
+        <div>
+          <h3 class="text-lg font-bold text-heading mb-1 flex items-center gap-2">
+            <span class="w-4 h-4 rounded-full bg-[#FDC700]"></span>Yellow Gold
+          </h3>
+          <p class="text-sm text-secondary mb-4">리뷰, 별점, 쿠폰 관련 요소에 사용.</p>
+          <div class="space-y-3">
+            <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB] flex">
+              <div class="w-20 shrink-0" style="background:#FEF9C2"></div>
+              <div class="p-3"><p class="text-xs font-bold text-heading">Yellow 100</p><p class="text-[11px] font-mono text-secondary">#FEF9C2</p><p class="text-[11px] text-secondary">리뷰 배경</p><p class="text-[10px] font-mono text-yellow-600">bg-yellow-100</p></div>
+            </div>
+            <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB] flex">
+              <div class="w-20 shrink-0" style="background:#FDC700"></div>
+              <div class="p-3"><p class="text-xs font-bold text-heading">Yellow 400</p><p class="text-[11px] font-mono text-secondary">#FDC700</p><p class="text-[11px] text-secondary">별점 색상</p><p class="text-[10px] font-mono text-yellow-600">bg-yellow-400</p></div>
+            </div>
+            <div class="bg-white rounded-lg shadow-card overflow-hidden border border-[#E5E7EB] flex">
+              <div class="w-20 shrink-0" style="background:#D08700"></div>
+              <div class="p-3"><p class="text-xs font-bold text-heading">Yellow 600</p><p class="text-[11px] font-mono text-secondary">#D08700</p><p class="text-[11px] text-secondary">리뷰 버튼</p><p class="text-[10px] font-mono text-yellow-600">bg-yellow-600</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== GRADIENTS ========== -->
+    <section id="gradients">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-1">Gradients</p>
+        <h2 class="text-3xl font-bold text-heading">그라데이션</h2>
+        <p class="mt-2 text-secondary max-w-xl">Loop의 시그니처 그라데이션입니다. 용도에 따라 방향과 색상 조합이 다릅니다.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden">
+          <div class="h-32 gradient-hero"></div>
+          <div class="p-4">
+            <p class="text-sm font-bold text-heading">히어로 그라데이션</p>
+            <p class="text-xs text-secondary mt-1">135deg · sky-300 → violet-300 → pink-300</p>
+            <p class="text-xs text-secondary mt-1">메인 히어로 배너, 온보딩 배경</p>
+            <code class="block text-[10px] font-mono text-violet-400 mt-2 bg-violet-50 px-2 py-1 rounded">linear-gradient(135deg, #74D4FF, #C4B4FF, #FFA1AD)</code>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden">
+          <div class="h-32 gradient-cta"></div>
+          <div class="p-4">
+            <p class="text-sm font-bold text-heading">CTA 그라데이션</p>
+            <p class="text-xs text-secondary mt-1">90deg · sky-400 → violet-400</p>
+            <p class="text-xs text-secondary mt-1">CTA 버튼, 강조 요소</p>
+            <code class="block text-[10px] font-mono text-sky-400 mt-2 bg-sky-50 px-2 py-1 rounded">linear-gradient(90deg, #00BCFF, #A684FF)</code>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden">
+          <div class="h-32 gradient-banner"></div>
+          <div class="p-4">
+            <p class="text-sm font-bold text-heading">배너 그라데이션</p>
+            <p class="text-xs text-secondary mt-1">90deg · sky-400 → violet-400</p>
+            <p class="text-xs text-secondary mt-1">프로모션 배너, 공지 영역</p>
+            <code class="block text-[10px] font-mono text-sky-400 mt-2 bg-sky-50 px-2 py-1 rounded">linear-gradient(90deg, #00BCFF, #A684FF)</code>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden">
+          <div class="h-32 gradient-recommend"></div>
+          <div class="p-4">
+            <p class="text-sm font-bold text-heading">추천 배경</p>
+            <p class="text-xs text-secondary mt-1">90deg · violet-50 → rose-50</p>
+            <p class="text-xs text-secondary mt-1">추천 상품 카드 배경</p>
+            <code class="block text-[10px] font-mono text-violet-400 mt-2 bg-violet-50 px-2 py-1 rounded">linear-gradient(90deg, #F5F3FF, #FFF1F2)</code>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden">
+          <div class="h-32 gradient-complete"></div>
+          <div class="p-4">
+            <p class="text-sm font-bold text-heading">완료 배경</p>
+            <p class="text-xs text-secondary mt-1">135deg · sky-50 → violet-50</p>
+            <p class="text-xs text-secondary mt-1">완료/성공 화면 배경</p>
+            <code class="block text-[10px] font-mono text-sky-400 mt-2 bg-sky-50 px-2 py-1 rounded">linear-gradient(135deg, #F0F9FF, #F5F3FF)</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== BUTTONS ========== -->
+    <section id="buttons">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-sky-400 uppercase tracking-widest mb-1">Buttons</p>
+        <h2 class="text-3xl font-bold text-heading">버튼 스타일</h2>
+        <p class="mt-2 text-secondary max-w-xl">Loop에서 사용하는 모든 버튼 variant입니다. 각 버튼은 hover 상태를 포함합니다.</p>
+      </div>
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-8">
+        <div class="flex flex-wrap gap-4 items-center mb-8">
+          <button class="px-6 py-3 rounded-[10px] font-semibold text-white text-sm transition-all" style="background:#00BCFF" onmouseover="this.style.background='#00A6F4'" onmouseout="this.style.background='#00BCFF'">예약하기</button>
+          <button class="px-6 py-3 rounded-[10px] font-semibold text-white text-sm gradient-cta hover:opacity-90 transition-all">지금 시작하기</button>
+          <button class="px-6 py-3 rounded-[10px] font-semibold text-white text-sm transition-all" style="background:#A684FF" onmouseover="this.style.background='#8E51FF'" onmouseout="this.style.background='#A684FF'">연장 신청</button>
+          <button class="px-6 py-3 rounded-[10px] font-semibold text-sm transition-all bg-gray-100 hover:bg-gray-200 text-heading">문의하기</button>
+          <button class="px-6 py-3 rounded-[10px] font-semibold text-white text-sm transition-all" style="background:#00D492" onmouseover="this.style.background='#00BC7D'" onmouseout="this.style.background='#00D492'">완료</button>
+          <button class="px-6 py-3 rounded-[10px] font-semibold text-white text-sm transition-all" style="background:#D08700" onmouseover="this.style.background='#B27300'" onmouseout="this.style.background='#D08700'">리뷰 작성</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[#E5E7EB] text-left">
+                <th class="pb-3 font-semibold text-heading">Variant</th>
+                <th class="pb-3 font-semibold text-heading">Background</th>
+                <th class="pb-3 font-semibold text-heading">Hover</th>
+                <th class="pb-3 font-semibold text-heading">Text</th>
+                <th class="pb-3 font-semibold text-heading">Label</th>
+              </tr>
+            </thead>
+            <tbody class="text-secondary">
+              <tr class="border-b border-[#E5E7EB]"><td class="py-2.5 font-medium text-heading">Primary CTA</td><td class="py-2.5"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#00BCFF"></span>sky-400</span></td><td class="py-2.5">sky-500</td><td class="py-2.5">White</td><td class="py-2.5">예약하기</td></tr>
+              <tr class="border-b border-[#E5E7EB]"><td class="py-2.5 font-medium text-heading">Gradient CTA</td><td class="py-2.5"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full gradient-cta"></span>sky→violet</span></td><td class="py-2.5">opacity 90%</td><td class="py-2.5">White</td><td class="py-2.5">지금 시작하기</td></tr>
+              <tr class="border-b border-[#E5E7EB]"><td class="py-2.5 font-medium text-heading">Secondary</td><td class="py-2.5"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#A684FF"></span>violet-400</span></td><td class="py-2.5">violet-500</td><td class="py-2.5">White</td><td class="py-2.5">연장 신청</td></tr>
+              <tr class="border-b border-[#E5E7EB]"><td class="py-2.5 font-medium text-heading">Tertiary</td><td class="py-2.5"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-gray-100 border"></span>gray-100</span></td><td class="py-2.5">gray-200</td><td class="py-2.5">Dark</td><td class="py-2.5">문의하기</td></tr>
+              <tr class="border-b border-[#E5E7EB]"><td class="py-2.5 font-medium text-heading">Success</td><td class="py-2.5"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#00D492"></span>emerald-400</span></td><td class="py-2.5">emerald-500</td><td class="py-2.5">White</td><td class="py-2.5">완료</td></tr>
+              <tr><td class="py-2.5 font-medium text-heading">Warning</td><td class="py-2.5"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#D08700"></span>yellow-600</span></td><td class="py-2.5">yellow-700</td><td class="py-2.5">White</td><td class="py-2.5">리뷰 작성</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== BADGES ========== -->
+    <section id="badges">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-emerald-500 uppercase tracking-widest mb-1">Status Badges</p>
+        <h2 class="text-3xl font-bold text-heading">상태 뱃지</h2>
+        <p class="mt-2 text-secondary max-w-xl">렌탈 진행 상태를 시각적으로 표시하는 뱃지 컴포넌트입니다.</p>
+      </div>
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-8">
+        <div class="flex flex-wrap gap-4 mb-8">
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold" style="background:#DFF2FE; color:#00A6F4">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0H21M3.375 14.25h5.25m0 0V6.375a1.125 1.125 0 011.125-1.125h2.25m0 0V4.875c0-.621.504-1.125 1.125-1.125h3.026a1.125 1.125 0 01.966.557l1.789 3.13A1.125 1.125 0 0119.125 8.1v5.025m-14.5 1.125h14.5"/></svg>
+            배송중
+          </span>
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold" style="background:#D0FAE5; color:#00BC7D">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            사용중
+          </span>
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold" style="background:#FEF3C6; color:#FE9A00">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            반납예정
+          </span>
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-gray-100" style="color:#4B5563">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            반납완료
+          </span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[#E5E7EB] text-left">
+                <th class="pb-3 font-semibold text-heading">상태</th>
+                <th class="pb-3 font-semibold text-heading">Background</th>
+                <th class="pb-3 font-semibold text-heading">Text Color</th>
+                <th class="pb-3 font-semibold text-heading">Icon</th>
+              </tr>
+            </thead>
+            <tbody class="text-secondary">
+              <tr class="border-b border-[#E5E7EB]"><td class="py-2.5 font-medium text-heading">배송중</td><td class="py-2.5">sky-100 (#DFF2FE)</td><td class="py-2.5">sky-500 (#00A6F4)</td><td class="py-2.5">🚚 트럭</td></tr>
+              <tr class="border-b border-[#E5E7EB]"><td class="py-2.5 font-medium text-heading">사용중</td><td class="py-2.5">emerald-100 (#D0FAE5)</td><td class="py-2.5">emerald-500 (#00BC7D)</td><td class="py-2.5">✓ 체크</td></tr>
+              <tr class="border-b border-[#E5E7EB]"><td class="py-2.5 font-medium text-heading">반납예정</td><td class="py-2.5">amber-100 (#FEF3C6)</td><td class="py-2.5">amber-500 (#FE9A00)</td><td class="py-2.5">⏰ 시계</td></tr>
+              <tr><td class="py-2.5 font-medium text-heading">반납완료</td><td class="py-2.5">gray-100</td><td class="py-2.5">gray-600</td><td class="py-2.5">✓ 완료</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== ALERTS ========== -->
+    <section id="alerts">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-amber-500 uppercase tracking-widest mb-1">Alerts</p>
+        <h2 class="text-3xl font-bold text-heading">알림 박스</h2>
+        <p class="mt-2 text-secondary max-w-xl">사용자에게 상태 정보를 전달하는 알림 컴포넌트입니다.</p>
+      </div>
+      <div class="space-y-4">
+        <div class="rounded-lg p-4 flex items-start gap-3" style="background:#F0F9FF; border-left: 4px solid #00BCFF;">
+          <div class="shrink-0 mt-0.5">
+            <svg class="w-5 h-5" style="color:#00A6F4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold" style="color:#00A6F4">정보</p>
+            <p class="text-sm mt-0.5" style="color:#0284C7">출국 2일 전 배송 예정입니다</p>
+          </div>
+        </div>
+        <div class="rounded-lg p-4 flex items-start gap-3" style="background:#FFFBEB; border-left: 4px solid #FE9A00;">
+          <div class="shrink-0 mt-0.5">
+            <svg class="w-5 h-5" style="color:#FE9A00" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold" style="color:#7B3306">주의</p>
+            <p class="text-sm mt-0.5" style="color:#BB4D00">반납 D-3 남았습니다</p>
+          </div>
+        </div>
+        <div class="rounded-lg p-4 flex items-start gap-3" style="background:#ECFDF5; border-left: 4px solid #00BC7D;">
+          <div class="shrink-0 mt-0.5">
+            <svg class="w-5 h-5" style="color:#00BC7D" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold" style="color:#004F3B">성공</p>
+            <p class="text-sm mt-0.5" style="color:#007A55">예약이 완료되었습니다</p>
+          </div>
+        </div>
+        <div class="rounded-lg p-4 flex items-start gap-3" style="background:#FEFCE8; border-left: 4px solid #D08700;">
+          <div class="shrink-0 mt-0.5">
+            <svg class="w-5 h-5" style="color:#D08700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold" style="color:#D08700">리뷰 요청</p>
+            <p class="text-sm mt-0.5" style="color:#92610B">리뷰를 남겨주시면 1,000원 쿠폰을 드려요</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== USAGE GUIDE ========== -->
+    <section id="guide">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-rose-400 uppercase tracking-widest mb-1">Usage Guide</p>
+        <h2 class="text-3xl font-bold text-heading">사용 가이드</h2>
+        <p class="mt-2 text-secondary max-w-xl">Loop 디자인 시스템을 일관되게 적용하기 위한 가이드라인입니다.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008z"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-heading">색상 위계</h3>
+          </div>
+          <ul class="space-y-2.5 text-sm text-body">
+            <li class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-sky-400 mt-1.5 shrink-0"></span><span><strong class="text-heading">Primary (Sky Blue 400)</strong> — CTA 버튼, 핵심 액션, 브랜드 포인트</span></li>
+            <li class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-violet-400 mt-1.5 shrink-0"></span><span><strong class="text-heading">Secondary (Violet 400)</strong> — 서브 액션, 보조 인터랙션</span></li>
+            <li class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 mt-1.5 shrink-0"></span><span><strong class="text-heading">Success (Emerald)</strong> — 완료, 성공 피드백</span></li>
+            <li class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0"></span><span><strong class="text-heading">Warning (Amber)</strong> — 주의, 기한 알림</span></li>
+            <li class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-yellow-400 mt-1.5 shrink-0"></span><span><strong class="text-heading">Accent (Yellow Gold)</strong> — 리뷰, 별점, 프로모션</span></li>
+          </ul>
+        </div>
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-heading">그라데이션 활용</h3>
+          </div>
+          <ul class="space-y-2.5 text-sm text-body">
+            <li class="flex items-start gap-2"><span class="text-violet-400 font-bold shrink-0">01</span><span><strong class="text-heading">히어로 영역</strong>에만 3-color 그라데이션 사용 (sky→violet→rose)</span></li>
+            <li class="flex items-start gap-2"><span class="text-violet-400 font-bold shrink-0">02</span><span><strong class="text-heading">CTA/배너</strong>에는 2-color 그라데이션 (sky→violet)</span></li>
+            <li class="flex items-start gap-2"><span class="text-violet-400 font-bold shrink-0">03</span><span><strong class="text-heading">추천/완료 배경</strong>에는 50 단계의 은은한 그라데이션</span></li>
+            <li class="flex items-start gap-2"><span class="text-violet-400 font-bold shrink-0">04</span><span>본문 영역에는 그라데이션 사용 자제 — 가독성 우선</span></li>
+          </ul>
+        </div>
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-heading">대비율 가이드</h3>
+          </div>
+          <ul class="space-y-2.5 text-sm text-body">
+            <li class="flex items-start gap-2"><span class="text-emerald-500 shrink-0">✓</span><span>버튼 텍스트 → 흰색 on sky-400: <strong class="text-heading">WCAG AA 충족</strong></span></li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 shrink-0">✓</span><span>본문 텍스트 (#4A5565) on 배경 (#F9FAFB): <strong class="text-heading">7:1 이상</strong></span></li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 shrink-0">✓</span><span>뱃지 텍스트는 400~600 단계 색상 사용으로 가독성 확보</span></li>
+            <li class="flex items-start gap-2"><span class="text-amber-500 shrink-0">⚠</span><span>밝은 배경(50~100)에는 400 이하 텍스트 사용 금지</span></li>
+          </ul>
+        </div>
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-heading">Z세대 타겟팅</h3>
+          </div>
+          <ul class="space-y-2.5 text-sm text-body">
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">💡</span><span><strong class="text-heading">파스텔 톤</strong> 기반으로 부드럽고 친근한 브랜드 이미지 구축</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">🎨</span><span><strong class="text-heading">그라데이션</strong>으로 역동적이고 트렌디한 느낌 표현</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">✨</span><span><strong class="text-heading">높은 채도 + 밝은 톤</strong>으로 에너지와 즐거움 전달</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">📱</span><span>모바일 퍼스트 — 모든 컴포넌트는 <strong class="text-heading">44px 이상</strong> 터치 타겟</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== BEFORE/AFTER ========== -->
+    <section id="comparison">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-heading uppercase tracking-widest mb-1">Before / After</p>
+        <h2 class="text-3xl font-bold text-heading">변경 전후 비교</h2>
+        <p class="mt-2 text-secondary max-w-xl">다크 톤에서 파스텔 톤으로의 전환. 더 밝고, 더 친근하고, 더 Z세대다운 브랜드로.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden">
+          <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="text-sm font-bold text-heading">Before — 다크 톤</span>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="flex gap-3">
+              <div class="flex-1"><p class="text-xs font-semibold text-secondary mb-1.5">Primary</p><div class="h-16 rounded-lg flex items-center justify-center text-white text-sm font-semibold" style="background:#155DFC">Blue 600 · #155DFC</div></div>
+              <div class="flex-1"><p class="text-xs font-semibold text-secondary mb-1.5">Secondary</p><div class="h-16 rounded-lg flex items-center justify-center text-white text-sm font-semibold" style="background:#9810FA">Purple 600 · #9810FA</div></div>
+            </div>
+            <div><p class="text-xs font-semibold text-secondary mb-1.5">Gradient</p><div class="h-16 rounded-lg gradient-before flex items-center justify-center text-white text-sm font-semibold">blue-700 → purple-700</div></div>
+            <div class="flex gap-3">
+              <button class="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold" style="background:#155DFC">예약하기</button>
+              <button class="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold" style="background:#9810FA">연장 신청</button>
+            </div>
+            <p class="text-xs text-center text-secondary mt-2">무겁고 진지한 톤 — 엔터프라이즈 느낌</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-card border-2 border-sky-300 overflow-hidden relative">
+          <div class="absolute top-3 right-3"><span class="text-xs font-bold text-white bg-sky-400 px-2.5 py-1 rounded-full">NEW ✦</span></div>
+          <div class="px-6 py-4 border-b border-sky-100 flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+            <span class="text-sm font-bold text-heading">After — 파스텔 톤</span>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="flex gap-3">
+              <div class="flex-1"><p class="text-xs font-semibold text-secondary mb-1.5">Primary</p><div class="h-16 rounded-lg flex items-center justify-center text-white text-sm font-semibold" style="background:#00BCFF">Sky 400 · #00BCFF</div></div>
+              <div class="flex-1"><p class="text-xs font-semibold text-secondary mb-1.5">Secondary</p><div class="h-16 rounded-lg flex items-center justify-center text-white text-sm font-semibold" style="background:#A684FF">Violet 400 · #A684FF</div></div>
+            </div>
+            <div><p class="text-xs font-semibold text-secondary mb-1.5">Gradient</p><div class="h-16 rounded-lg gradient-after flex items-center justify-center text-white text-sm font-semibold">sky-400 → violet-400</div></div>
+            <div class="flex gap-3">
+              <button class="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold" style="background:#00BCFF">예약하기</button>
+              <button class="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold" style="background:#A684FF">연장 신청</button>
+            </div>
+            <p class="text-xs text-center text-sky-400 font-medium mt-2">밝고 친근한 톤 — Z세대 감성 ✨</p>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-[#E5E7EB]">
+              <th class="p-4 text-left font-semibold text-heading">항목</th>
+              <th class="p-4 text-left font-semibold text-heading">Before (다크 톤)</th>
+              <th class="p-4 text-left font-semibold text-heading">After (파스텔 톤)</th>
+            </tr>
+          </thead>
+          <tbody class="text-secondary">
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Primary</td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#155DFC"></span>#155DFC (Blue 600)</span></td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#00BCFF"></span>#00BCFF (Sky 400)</span></td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Secondary</td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#9810FA"></span>#9810FA (Purple 600)</span></td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#A684FF"></span>#A684FF (Violet 400)</span></td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Gradient</td><td class="p-4">blue-700 → purple-700</td><td class="p-4">sky-400 → violet-400</td></tr>
+            <tr><td class="p-4 font-medium text-heading">톤앤매너</td><td class="p-4">무겁고 진지한, 엔터프라이즈</td><td class="p-4">밝고 친근한, Z세대 감성</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- =================== NEW SECTIONS START HERE ====================== -->
+    <!-- ================================================================== -->
+
+    <!-- ========== 1. TYPOGRAPHY ========== -->
+    <section id="typography">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-sky-400 uppercase tracking-widest mb-1">Typography</p>
+        <h2 class="text-3xl font-bold text-heading">타이포그래피</h2>
+        <p class="mt-2 text-secondary max-w-xl">Inter 폰트 기반의 타이포그래피 스케일. 모든 텍스트 스타일은 명확한 계층 구조를 따릅니다.</p>
+      </div>
+
+      <!-- Live Typography Samples -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-8 space-y-6 mb-8">
+        <!-- Display -->
+        <div class="flex items-baseline justify-between border-b border-[#E5E7EB] pb-6">
+          <div class="flex-1">
+            <p style="font-size:36px; font-weight:700; line-height:40px; color:#101828;">Loop 여행을 더 가볍게</p>
+          </div>
+          <div class="shrink-0 text-right ml-6">
+            <p class="text-xs font-semibold text-sky-400">Display</p>
+            <p class="text-[11px] font-mono text-secondary">36px / 700 / 40px</p>
+          </div>
+        </div>
+        <!-- H1 -->
+        <div class="flex items-baseline justify-between border-b border-[#E5E7EB] pb-6">
+          <div class="flex-1">
+            <p style="font-size:24px; font-weight:700; line-height:32px; color:#101828;">인기 렌탈 상품</p>
+          </div>
+          <div class="shrink-0 text-right ml-6">
+            <p class="text-xs font-semibold text-sky-400">Heading 1</p>
+            <p class="text-[11px] font-mono text-secondary">24px / 700 / 32px</p>
+          </div>
+        </div>
+        <!-- H2 -->
+        <div class="flex items-baseline justify-between border-b border-[#E5E7EB] pb-6">
+          <div class="flex-1">
+            <p style="font-size:20px; font-weight:600; line-height:28px; color:#101828;">카테고리별 보기</p>
+          </div>
+          <div class="shrink-0 text-right ml-6">
+            <p class="text-xs font-semibold text-sky-400">Heading 2</p>
+            <p class="text-[11px] font-mono text-secondary">20px / 600 / 28px</p>
+          </div>
+        </div>
+        <!-- H3 -->
+        <div class="flex items-baseline justify-between border-b border-[#E5E7EB] pb-6">
+          <div class="flex-1">
+            <p style="font-size:18px; font-weight:600; line-height:27px; color:#101828;">소니 WH-1000XM5</p>
+          </div>
+          <div class="shrink-0 text-right ml-6">
+            <p class="text-xs font-semibold text-sky-400">Heading 3</p>
+            <p class="text-[11px] font-mono text-secondary">18px / 600 / 27px</p>
+          </div>
+        </div>
+        <!-- Body Large -->
+        <div class="flex items-baseline justify-between border-b border-[#E5E7EB] pb-6">
+          <div class="flex-1">
+            <p style="font-size:16px; font-weight:400; line-height:24px; color:#4A5565;">여행에 필요한 전자기기, 캠핑 장비, 스포츠 용품을 합리적인 가격에 빌려보세요.</p>
+          </div>
+          <div class="shrink-0 text-right ml-6">
+            <p class="text-xs font-semibold text-sky-400">Body Large</p>
+            <p class="text-[11px] font-mono text-secondary">16px / 400 / 24px</p>
+          </div>
+        </div>
+        <!-- Body -->
+        <div class="flex items-baseline justify-between border-b border-[#E5E7EB] pb-6">
+          <div class="flex-1">
+            <p style="font-size:14px; font-weight:400; line-height:20px; color:#4A5565;">대여 기간은 최소 3일부터 최대 30일까지 선택 가능합니다.</p>
+          </div>
+          <div class="shrink-0 text-right ml-6">
+            <p class="text-xs font-semibold text-sky-400">Body</p>
+            <p class="text-[11px] font-mono text-secondary">14px / 400 / 20px</p>
+          </div>
+        </div>
+        <!-- Caption -->
+        <div class="flex items-baseline justify-between border-b border-[#E5E7EB] pb-6">
+          <div class="flex-1">
+            <p style="font-size:12px; font-weight:400; line-height:16px; color:#6A7282;">최종 수정일: 2026.04.05 · 조회수 1,234</p>
+          </div>
+          <div class="shrink-0 text-right ml-6">
+            <p class="text-xs font-semibold text-sky-400">Caption</p>
+            <p class="text-[11px] font-mono text-secondary">12px / 400 / 16px</p>
+          </div>
+        </div>
+        <!-- Code -->
+        <div class="flex items-baseline justify-between border-b border-[#E5E7EB] pb-6">
+          <div class="flex-1">
+            <p style="font-size:12px; font-weight:400; line-height:16px; font-family:'Menlo',monospace; color:#6A7282;">bg-sky-400 text-white rounded-[10px]</p>
+          </div>
+          <div class="shrink-0 text-right ml-6">
+            <p class="text-xs font-semibold text-sky-400">Code</p>
+            <p class="text-[11px] font-mono text-secondary">12px Menlo / 400 / 16px</p>
+          </div>
+        </div>
+        <!-- Button Large -->
+        <div class="flex items-baseline justify-between border-b border-[#E5E7EB] pb-6">
+          <div class="flex-1">
+            <p style="font-size:16px; font-weight:600; line-height:24px; color:#101828;">지금 바로 예약하기</p>
+          </div>
+          <div class="shrink-0 text-right ml-6">
+            <p class="text-xs font-semibold text-sky-400">Button Large</p>
+            <p class="text-[11px] font-mono text-secondary">16px / 600 / 24px</p>
+          </div>
+        </div>
+        <!-- Button -->
+        <div class="flex items-baseline justify-between">
+          <div class="flex-1">
+            <p style="font-size:14px; font-weight:500; line-height:20px; color:#101828;">상세보기</p>
+          </div>
+          <div class="shrink-0 text-right ml-6">
+            <p class="text-xs font-semibold text-sky-400">Button</p>
+            <p class="text-[11px] font-mono text-secondary">14px / 500 / 20px</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typography Spec Table -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-[#E5E7EB] text-left">
+              <th class="p-4 font-semibold text-heading">스타일</th>
+              <th class="p-4 font-semibold text-heading">크기</th>
+              <th class="p-4 font-semibold text-heading">무게</th>
+              <th class="p-4 font-semibold text-heading">행간</th>
+              <th class="p-4 font-semibold text-heading">컬러</th>
+              <th class="p-4 font-semibold text-heading">용도</th>
+            </tr>
+          </thead>
+          <tbody class="text-secondary">
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Display</td><td class="p-4 font-mono">36px</td><td class="p-4">Bold (700)</td><td class="p-4 font-mono">40px</td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#101828"></span>#101828</span></td><td class="p-4">페이지 타이틀</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Heading 1</td><td class="p-4 font-mono">24px</td><td class="p-4">Bold (700)</td><td class="p-4 font-mono">32px</td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#101828"></span>#101828</span></td><td class="p-4">섹션 제목</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Heading 2</td><td class="p-4 font-mono">20px</td><td class="p-4">Semibold (600)</td><td class="p-4 font-mono">28px</td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#101828"></span>#101828</span></td><td class="p-4">서브 섹션</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Heading 3</td><td class="p-4 font-mono">18px</td><td class="p-4">Semibold (600)</td><td class="p-4 font-mono">27px</td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#101828"></span>#101828</span></td><td class="p-4">카드 제목</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Body Large</td><td class="p-4 font-mono">16px</td><td class="p-4">Regular (400)</td><td class="p-4 font-mono">24px</td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#4A5565"></span>#4A5565</span></td><td class="p-4">본문 텍스트</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Body</td><td class="p-4 font-mono">14px</td><td class="p-4">Regular (400)</td><td class="p-4 font-mono">20px</td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#4A5565"></span>#4A5565</span></td><td class="p-4">일반 텍스트</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Caption</td><td class="p-4 font-mono">12px</td><td class="p-4">Regular (400)</td><td class="p-4 font-mono">16px</td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#6A7282"></span>#6A7282</span></td><td class="p-4">보조 텍스트</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Code</td><td class="p-4 font-mono">12px</td><td class="p-4">Regular (400) · Menlo</td><td class="p-4 font-mono">16px</td><td class="p-4"><span class="inline-flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background:#6A7282"></span>#6A7282</span></td><td class="p-4">코드 스니펫</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">Button Large</td><td class="p-4 font-mono">16px</td><td class="p-4">Semibold (600)</td><td class="p-4 font-mono">24px</td><td class="p-4">—</td><td class="p-4">대형 버튼</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Button</td><td class="p-4 font-mono">14px</td><td class="p-4">Medium (500)</td><td class="p-4 font-mono">20px</td><td class="p-4">—</td><td class="p-4">일반 버튼/뱃지</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========== LETTER-SPACING ========== -->
+    <div class="mt-12 mb-16">
+      <div class="mb-6">
+        <p class="text-sm font-semibold text-sky-400 uppercase tracking-widest mb-1">Letter-spacing</p>
+        <h3 class="text-xl font-bold text-heading">자간 (Letter-spacing)</h3>
+        <p class="mt-2 text-secondary max-w-xl">v1.1 추가. Display에서만 -0.5px, 나머지는 natural. Loop는 극단적 tracking을 쓰지 않는다.</p>
+      </div>
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Role</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Size</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Letter-spacing</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Rationale</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E5E7EB]">
+            <tr><td class="p-4 font-medium text-heading">Display (36px)</td><td class="p-4 font-mono text-secondary">36px</td><td class="p-4 font-mono text-sky-400 font-semibold">-0.5px</td><td class="p-4 text-secondary">밀도감 있는 헤드라인</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Heading 1 (24px)</td><td class="p-4 font-mono text-secondary">24px</td><td class="p-4 font-mono text-sky-400 font-semibold">-0.3px</td><td class="p-4 text-secondary">섹션 제목 응집력</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Heading 2 (20px)</td><td class="p-4 font-mono text-secondary">20px</td><td class="p-4 font-mono text-sky-400 font-semibold">-0.2px</td><td class="p-4 text-secondary">미세한 타이트닝</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Heading 3 (18px)</td><td class="p-4 font-mono text-secondary">18px</td><td class="p-4 font-mono text-secondary">normal</td><td class="p-4 text-secondary">카드 제목은 자연스럽게</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Body (14–16px)</td><td class="p-4 font-mono text-secondary">14–16px</td><td class="p-4 font-mono text-secondary">normal</td><td class="p-4 text-secondary">가독성 우선</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Caption (12px)</td><td class="p-4 font-mono text-secondary">12px</td><td class="p-4 font-mono text-secondary">normal</td><td class="p-4 text-secondary">작은 텍스트는 건드리지 않음</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Button Large (16px)</td><td class="p-4 font-mono text-secondary">16px</td><td class="p-4 font-mono text-secondary">normal</td><td class="p-4 text-secondary">버튼은 자연스럽게</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Button (14px)</td><td class="p-4 font-mono text-secondary">14px</td><td class="p-4 font-mono text-sky-400 font-semibold">0.1px</td><td class="p-4 text-secondary">약간의 여유로 가독성</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 2. SPACING ========== -->
+    <section id="spacing">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-1">Spacing</p>
+        <h2 class="text-3xl font-bold text-heading">스페이싱 시스템</h2>
+        <p class="mt-2 text-secondary max-w-xl">8pt 그리드 기반. 일관된 여백과 간격으로 시각적 리듬을 만듭니다.</p>
+      </div>
+
+      <!-- Visual Spacing Boxes -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-8 mb-8">
+        <div class="space-y-4">
+          <!-- spacing-1: 4px -->
+          <div class="flex items-center gap-4">
+            <div class="w-24 shrink-0 text-right">
+              <p class="text-xs font-bold text-heading">spacing-1</p>
+              <p class="text-[11px] font-mono text-secondary">4px</p>
+            </div>
+            <div style="width:4px; height:32px; background:#DFF2FE; border: 1px solid #00BCFF; border-radius:2px;"></div>
+            <p class="text-xs text-secondary">p-1 · 아이콘 내부 패딩</p>
+          </div>
+          <!-- spacing-2: 8px -->
+          <div class="flex items-center gap-4">
+            <div class="w-24 shrink-0 text-right">
+              <p class="text-xs font-bold text-heading">spacing-2</p>
+              <p class="text-[11px] font-mono text-secondary">8px</p>
+            </div>
+            <div style="width:8px; height:32px; background:#DFF2FE; border: 1px solid #00BCFF; border-radius:2px;"></div>
+            <p class="text-xs text-secondary">p-2, gap-2 · 인라인 요소 간격</p>
+          </div>
+          <!-- spacing-3: 12px -->
+          <div class="flex items-center gap-4">
+            <div class="w-24 shrink-0 text-right">
+              <p class="text-xs font-bold text-heading">spacing-3</p>
+              <p class="text-[11px] font-mono text-secondary">12px</p>
+            </div>
+            <div style="width:12px; height:32px; background:#DFF2FE; border: 1px solid #00BCFF; border-radius:2px;"></div>
+            <p class="text-xs text-secondary">p-3, gap-3 · 컴포넌트 내부</p>
+          </div>
+          <!-- spacing-4: 16px -->
+          <div class="flex items-center gap-4">
+            <div class="w-24 shrink-0 text-right">
+              <p class="text-xs font-bold text-heading">spacing-4</p>
+              <p class="text-[11px] font-mono text-secondary">16px</p>
+            </div>
+            <div style="width:16px; height:32px; background:#DFF2FE; border: 1px solid #00BCFF; border-radius:2px;"></div>
+            <p class="text-xs text-secondary">p-4, gap-4 · 카드 내부 패딩</p>
+          </div>
+          <!-- spacing-6: 24px -->
+          <div class="flex items-center gap-4">
+            <div class="w-24 shrink-0 text-right">
+              <p class="text-xs font-bold text-heading">spacing-6</p>
+              <p class="text-[11px] font-mono text-secondary">24px</p>
+            </div>
+            <div style="width:24px; height:32px; background:#DFF2FE; border: 1px solid #00BCFF; border-radius:2px;"></div>
+            <p class="text-xs text-secondary">p-6, gap-6 · 섹션 내부</p>
+          </div>
+          <!-- spacing-8: 32px -->
+          <div class="flex items-center gap-4">
+            <div class="w-24 shrink-0 text-right">
+              <p class="text-xs font-bold text-heading">spacing-8</p>
+              <p class="text-[11px] font-mono text-secondary">32px</p>
+            </div>
+            <div style="width:32px; height:32px; background:#DFF2FE; border: 1px solid #00BCFF; border-radius:2px;"></div>
+            <p class="text-xs text-secondary">p-8, gap-8 · 섹션 간 간격</p>
+          </div>
+          <!-- spacing-12: 48px -->
+          <div class="flex items-center gap-4">
+            <div class="w-24 shrink-0 text-right">
+              <p class="text-xs font-bold text-heading">spacing-12</p>
+              <p class="text-[11px] font-mono text-secondary">48px</p>
+            </div>
+            <div style="width:48px; height:32px; background:#DFF2FE; border: 1px solid #00BCFF; border-radius:2px;"></div>
+            <p class="text-xs text-secondary">p-12 · 페이지 패딩</p>
+          </div>
+          <!-- spacing-16: 64px -->
+          <div class="flex items-center gap-4">
+            <div class="w-24 shrink-0 text-right">
+              <p class="text-xs font-bold text-heading">spacing-16</p>
+              <p class="text-[11px] font-mono text-secondary">64px</p>
+            </div>
+            <div style="width:64px; height:32px; background:#DFF2FE; border: 1px solid #00BCFF; border-radius:2px;"></div>
+            <p class="text-xs text-secondary">p-16 · 대형 간격</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spacing Spec Table -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-[#E5E7EB] text-left">
+              <th class="p-4 font-semibold text-heading">토큰</th>
+              <th class="p-4 font-semibold text-heading">값</th>
+              <th class="p-4 font-semibold text-heading">Tailwind</th>
+              <th class="p-4 font-semibold text-heading">용도</th>
+            </tr>
+          </thead>
+          <tbody class="text-secondary">
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">spacing-1</td><td class="p-4 font-mono">4px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">p-1</code></td><td class="p-4">아이콘 내부 패딩</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">spacing-2</td><td class="p-4 font-mono">8px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">p-2, gap-2</code></td><td class="p-4">인라인 요소 간격</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">spacing-3</td><td class="p-4 font-mono">12px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">p-3, gap-3</code></td><td class="p-4">컴포넌트 내부</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">spacing-4</td><td class="p-4 font-mono">16px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">p-4, gap-4</code></td><td class="p-4">카드 내부 패딩</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">spacing-6</td><td class="p-4 font-mono">24px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">p-6, gap-6</code></td><td class="p-4">섹션 내부</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">spacing-8</td><td class="p-4 font-mono">32px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">p-8, gap-8</code></td><td class="p-4">섹션 간 간격</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">spacing-12</td><td class="p-4 font-mono">48px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">p-12</code></td><td class="p-4">페이지 패딩</td></tr>
+            <tr><td class="p-4 font-medium text-heading">spacing-16</td><td class="p-4 font-mono">64px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">p-16</code></td><td class="p-4">대형 간격</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========== 3. BORDER RADIUS ========== -->
+    <section id="radius">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-emerald-500 uppercase tracking-widest mb-1">Border Radius</p>
+        <h2 class="text-3xl font-bold text-heading">보더 레디어스</h2>
+        <p class="mt-2 text-secondary max-w-xl">부드러운 곡선으로 친근한 브랜드 이미지를 표현합니다.</p>
+      </div>
+
+      <!-- Visual Radius Comparison -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-8 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="text-center">
+            <div class="w-24 h-24 mx-auto border-2 border-sky-400 bg-sky-50" style="border-radius:4px;"></div>
+            <p class="text-sm font-bold text-heading mt-3">radius-sm</p>
+            <p class="text-xs font-mono text-secondary">4px</p>
+            <p class="text-xs text-secondary mt-1">뱃지, 태그</p>
+            <code class="text-[10px] font-mono text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded mt-1 inline-block">rounded</code>
+          </div>
+          <div class="text-center">
+            <div class="w-24 h-24 mx-auto border-2 border-sky-400 bg-sky-50" style="border-radius:8px;"></div>
+            <p class="text-sm font-bold text-heading mt-3">radius-md</p>
+            <p class="text-xs font-mono text-secondary">8px</p>
+            <p class="text-xs text-secondary mt-1">입력 필드</p>
+            <code class="text-[10px] font-mono text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded mt-1 inline-block">rounded-lg</code>
+          </div>
+          <div class="text-center">
+            <div class="w-24 h-24 mx-auto border-2 border-sky-400 bg-sky-50" style="border-radius:10px;"></div>
+            <p class="text-sm font-bold text-heading mt-3">radius-lg</p>
+            <p class="text-xs font-mono text-secondary">10px</p>
+            <p class="text-xs text-secondary mt-1">카드, 버튼</p>
+            <code class="text-[10px] font-mono text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded mt-1 inline-block">rounded-[10px]</code>
+          </div>
+          <div class="text-center">
+            <div class="w-24 h-24 mx-auto border-2 border-sky-400 bg-sky-50" style="border-radius:9999px;"></div>
+            <p class="text-sm font-bold text-heading mt-3">radius-full</p>
+            <p class="text-xs font-mono text-secondary">9999px</p>
+            <p class="text-xs text-secondary mt-1">아바타, 뱃지 pill</p>
+            <code class="text-[10px] font-mono text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded mt-1 inline-block">rounded-full</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Radius Table -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-[#E5E7EB] text-left">
+              <th class="p-4 font-semibold text-heading">토큰</th>
+              <th class="p-4 font-semibold text-heading">값</th>
+              <th class="p-4 font-semibold text-heading">Tailwind</th>
+              <th class="p-4 font-semibold text-heading">용도</th>
+            </tr>
+          </thead>
+          <tbody class="text-secondary">
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">radius-sm</td><td class="p-4 font-mono">4px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">rounded</code></td><td class="p-4">뱃지, 태그</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">radius-md</td><td class="p-4 font-mono">8px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">rounded-lg</code></td><td class="p-4">입력 필드</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading">radius-lg</td><td class="p-4 font-mono">10px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">rounded-[10px]</code></td><td class="p-4">카드, 버튼</td></tr>
+            <tr><td class="p-4 font-medium text-heading">radius-full</td><td class="p-4 font-mono">9999px</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded text-xs">rounded-full</code></td><td class="p-4">아바타, 뱃지 pill</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========== 4. SHADOW / ELEVATION ========== -->
+    <section id="shadows">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-rose-400 uppercase tracking-widest mb-1">Shadow / Elevation</p>
+        <h2 class="text-3xl font-bold text-heading">그림자 / 엘리베이션</h2>
+        <p class="mt-2 text-secondary max-w-xl">깊이감으로 UI 요소의 계층 구조를 표현합니다.</p>
+      </div>
+
+      <!-- Visual Shadow Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-6 mb-8">
+        <div class="text-center">
+          <div class="w-full aspect-square bg-white rounded-[10px] border border-[#E5E7EB] flex items-center justify-center" style="box-shadow: none;">
+            <span class="text-xs font-bold text-secondary">Level 0</span>
+          </div>
+          <p class="text-xs font-bold text-heading mt-3">없음</p>
+          <p class="text-[11px] text-secondary">평면 요소</p>
+          <code class="text-[10px] font-mono text-sky-400">shadow-none</code>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square bg-white rounded-[10px] flex items-center justify-center" style="box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);">
+            <span class="text-xs font-bold text-secondary">Level 1</span>
+          </div>
+          <p class="text-xs font-bold text-heading mt-3">카드</p>
+          <p class="text-[11px] text-secondary">기본 컨테이너</p>
+          <code class="text-[10px] font-mono text-sky-400">shadow</code>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square bg-white rounded-[10px] flex items-center justify-center" style="box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);">
+            <span class="text-xs font-bold text-secondary">Level 2</span>
+          </div>
+          <p class="text-xs font-bold text-heading mt-3">드롭다운</p>
+          <p class="text-[11px] text-secondary">플로팅 요소</p>
+          <code class="text-[10px] font-mono text-sky-400">shadow-md</code>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square bg-white rounded-[10px] flex items-center justify-center" style="box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);">
+            <span class="text-xs font-bold text-secondary">Level 3</span>
+          </div>
+          <p class="text-xs font-bold text-heading mt-3">모달</p>
+          <p class="text-[11px] text-secondary">오버레이</p>
+          <code class="text-[10px] font-mono text-sky-400">shadow-lg</code>
+        </div>
+        <div class="text-center">
+          <div class="w-full aspect-square bg-white rounded-[10px] flex items-center justify-center" style="box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);">
+            <span class="text-xs font-bold text-secondary">Level 4</span>
+          </div>
+          <p class="text-xs font-bold text-heading mt-3">토스트</p>
+          <p class="text-[11px] text-secondary">최상위 알림</p>
+          <code class="text-[10px] font-mono text-sky-400">shadow-xl</code>
+        </div>
+      </div>
+
+      <!-- Shadow Spec Table -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-[#E5E7EB] text-left">
+              <th class="p-4 font-semibold text-heading">레벨</th>
+              <th class="p-4 font-semibold text-heading">CSS 값</th>
+              <th class="p-4 font-semibold text-heading">Tailwind</th>
+              <th class="p-4 font-semibold text-heading">용도</th>
+            </tr>
+          </thead>
+          <tbody class="text-secondary text-xs">
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading text-sm">Level 0</td><td class="p-4 font-mono">none</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded">shadow-none</code></td><td class="p-4 text-sm">평면 요소</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading text-sm">Level 1</td><td class="p-4 font-mono">0 1px 3px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1)</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded">shadow</code></td><td class="p-4 text-sm">카드</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading text-sm">Level 2</td><td class="p-4 font-mono">0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded">shadow-md</code></td><td class="p-4 text-sm">드롭다운</td></tr>
+            <tr class="border-b border-[#E5E7EB]"><td class="p-4 font-medium text-heading text-sm">Level 3</td><td class="p-4 font-mono">0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded">shadow-lg</code></td><td class="p-4 text-sm">모달</td></tr>
+            <tr><td class="p-4 font-medium text-heading text-sm">Level 4</td><td class="p-4 font-mono">0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)</td><td class="p-4"><code class="text-sky-400 bg-sky-50 px-1.5 py-0.5 rounded">shadow-xl</code></td><td class="p-4 text-sm">토스트</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========== 5. FORM COMPONENTS ========== -->
+    <section id="forms">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-sky-400 uppercase tracking-widest mb-1">Form Components</p>
+        <h2 class="text-3xl font-bold text-heading">입력 폼 컴포넌트</h2>
+        <p class="mt-2 text-secondary max-w-xl">Loop 앱의 모든 입력 요소는 일관된 스타일과 상태를 따릅니다.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Text Input States -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-base font-bold text-heading mb-4">Text Input</h3>
+          <div class="space-y-4">
+            <!-- Default -->
+            <div>
+              <label class="block text-sm font-medium text-heading mb-1.5">이름</label>
+              <input type="text" placeholder="이름을 입력해주세요" class="w-full px-4 py-3 text-sm border border-[#E5E7EB] rounded-lg input-focus bg-white text-heading placeholder:text-[#9CA3AF] transition-all" style="outline:none;">
+              <p class="text-xs text-secondary mt-1.5">Default 상태</p>
+            </div>
+            <!-- Focus -->
+            <div>
+              <label class="block text-sm font-medium text-heading mb-1.5">이메일</label>
+              <input type="text" value="user@example.com" class="w-full px-4 py-3 text-sm rounded-lg bg-white text-heading transition-all" style="outline:none; border: 1px solid #00BCFF; box-shadow: 0 0 0 3px rgba(0, 188, 255, 0.3);">
+              <p class="text-xs text-sky-400 mt-1.5">Focus 상태 — sky-400 ring</p>
+            </div>
+            <!-- Error -->
+            <div>
+              <label class="block text-sm font-medium text-heading mb-1.5">전화번호</label>
+              <input type="text" value="abcdefg" class="w-full px-4 py-3 text-sm rounded-lg bg-white text-heading transition-all" style="outline:none; border: 1px solid #FF637E; box-shadow: 0 0 0 3px rgba(255, 99, 126, 0.3);">
+              <p class="text-xs mt-1.5" style="color:#FF637E;">올바른 전화번호를 입력해주세요</p>
+            </div>
+            <!-- Disabled -->
+            <div>
+              <label class="block text-sm font-medium text-secondary mb-1.5">추천인 코드</label>
+              <input type="text" value="LOOP-2026" disabled class="w-full px-4 py-3 text-sm border border-[#E5E7EB] rounded-lg bg-[#F9FAFB] text-secondary cursor-not-allowed" style="outline:none;">
+              <p class="text-xs text-secondary mt-1.5">Disabled 상태</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Textarea + Select -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-base font-bold text-heading mb-4">Textarea & Select</h3>
+          <div class="space-y-4">
+            <!-- Textarea -->
+            <div>
+              <label class="block text-sm font-medium text-heading mb-1.5">문의 내용</label>
+              <textarea rows="3" placeholder="문의 내용을 작성해주세요" class="w-full px-4 py-3 text-sm border border-[#E5E7EB] rounded-lg input-focus bg-white text-heading placeholder:text-[#9CA3AF] resize-none transition-all" style="outline:none;"></textarea>
+              <p class="text-xs text-secondary mt-1">최대 500자까지 입력 가능합니다</p>
+            </div>
+            <!-- Select -->
+            <div>
+              <label class="block text-sm font-medium text-heading mb-1.5">카테고리</label>
+              <div class="relative">
+                <select class="w-full px-4 py-3 text-sm border border-[#E5E7EB] rounded-lg input-focus bg-white text-heading appearance-none cursor-pointer transition-all" style="outline:none;">
+                  <option>전자기기</option>
+                  <option>캠핑 장비</option>
+                  <option>스포츠 용품</option>
+                  <option>여행 가방</option>
+                </select>
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkbox & Radio -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-base font-bold text-heading mb-4">Checkbox & Radio</h3>
+          <div class="space-y-5">
+            <!-- Checkboxes -->
+            <div>
+              <p class="text-xs font-semibold text-secondary uppercase tracking-wider mb-3">Checkbox</p>
+              <div class="space-y-3">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <div class="custom-checkbox"></div>
+                  <span class="text-sm text-heading">미선택 상태</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <div class="custom-checkbox checked">
+                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                  </div>
+                  <span class="text-sm text-heading">선택됨 (sky-400)</span>
+                </label>
+                <label class="flex items-center gap-3">
+                  <div class="custom-checkbox disabled"></div>
+                  <span class="text-sm text-secondary">비활성화</span>
+                </label>
+              </div>
+            </div>
+            <!-- Radio -->
+            <div>
+              <p class="text-xs font-semibold text-secondary uppercase tracking-wider mb-3">Radio</p>
+              <div class="space-y-3">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <div class="custom-radio"></div>
+                  <span class="text-sm text-heading">미선택 상태</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <div class="custom-radio checked"></div>
+                  <span class="text-sm text-heading">선택됨 (sky-400)</span>
+                </label>
+                <label class="flex items-center gap-3">
+                  <div class="custom-radio disabled"></div>
+                  <span class="text-sm text-secondary">비활성화</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toggle Switch -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-base font-bold text-heading mb-4">Toggle Switch</h3>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-heading">알림 받기</span>
+              <div class="toggle-switch"></div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-heading">마케팅 수신 동의</span>
+              <div class="toggle-switch active"></div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-secondary">비활성화된 토글</span>
+              <div class="toggle-switch" style="opacity:0.5; cursor:not-allowed;"></div>
+            </div>
+          </div>
+          <div class="mt-6 pt-4 border-t border-[#E5E7EB]">
+            <p class="text-xs text-secondary"><strong class="text-heading">스펙:</strong> 44×24px · 원형 핸들 20px · Off: gray-300 · On: sky-400 · 트랜지션: 0.2s</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== FOCUS STATES ========== -->
+    <div class="mt-12 mb-16">
+      <div class="mb-6">
+        <p class="text-sm font-semibold text-sky-400 uppercase tracking-widest mb-1">Focus &amp; Accessibility</p>
+        <h3 class="text-xl font-bold text-heading">포커스 &amp; 접근성 상태</h3>
+        <p class="mt-2 text-secondary max-w-xl">v1.1 추가. 모든 interactive 요소의 포커스 링과 접근성 상태 정의.</p>
+      </div>
+
+      <!-- Focus Ring Code -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6 mb-6">
+        <h4 class="text-sm font-bold text-heading mb-3">Focus Ring System</h4>
+        <pre class="bg-[#F9FAFB] rounded-lg p-4 text-xs font-mono text-body overflow-x-auto"><code>/* Primary focus (모든 interactive 요소) */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 188, 255, 0.3);
+  border-color: #00BCFF;
+}
+
+/* Error focus (에러 상태 input) */
+.input-error:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 99, 126, 0.3);
+  border-color: #FF637E;
+}
+
+/* Keyboard-only focus (마우스 클릭 시 ring 숨김) */
+:focus:not(:focus-visible) {
+  box-shadow: none;
+}</code></pre>
+      </div>
+
+      <!-- Interactive States Table -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden mb-6">
+        <h4 class="text-sm font-bold text-heading p-4 border-b border-[#E5E7EB] bg-[#F9FAFB]">Interactive States</h4>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">State</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Background</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Border</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Shadow</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Transform</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E5E7EB]">
+            <tr><td class="p-4 font-medium text-heading">Default</td><td class="p-4 text-secondary">해당 색상</td><td class="p-4 font-mono text-secondary">#E5E7EB</td><td class="p-4 text-secondary">none</td><td class="p-4 text-secondary">none</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Hover</td><td class="p-4 text-secondary">500 단계</td><td class="p-4 text-secondary">유지</td><td class="p-4 text-secondary">유지</td><td class="p-4 text-secondary">none</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Focus</td><td class="p-4 text-secondary">유지</td><td class="p-4 font-mono text-sky-400">sky-400</td><td class="p-4 font-mono text-sky-400">sky ring 3px</td><td class="p-4 text-secondary">none</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Active/Pressed</td><td class="p-4 text-secondary">500 단계</td><td class="p-4 text-secondary">유지</td><td class="p-4 text-secondary">유지</td><td class="p-4 font-mono text-secondary">scale(0.98)</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Disabled</td><td class="p-4 font-mono text-secondary">#F9FAFB</td><td class="p-4 font-mono text-secondary">#E5E7EB</td><td class="p-4 text-secondary">none</td><td class="p-4 text-secondary">not-allowed</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Loading</td><td class="p-4 text-secondary">유지</td><td class="p-4 text-secondary">유지</td><td class="p-4 text-secondary">유지</td><td class="p-4 text-secondary">spinner 표시</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Color Contrast Table -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden">
+        <h4 class="text-sm font-bold text-heading p-4 border-b border-[#E5E7EB] bg-[#F9FAFB]">Color Contrast (WCAG AA)</h4>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Pair</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Ratio</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E5E7EB]">
+            <tr><td class="p-4 font-mono text-heading">#101828 on #FFFFFF</td><td class="p-4 font-mono text-secondary">15.4:1</td><td class="p-4"><span class="text-emerald-500 font-semibold">✅ AAA</span></td></tr>
+            <tr><td class="p-4 font-mono text-heading">#4A5565 on #F9FAFB</td><td class="p-4 font-mono text-secondary">7.2:1</td><td class="p-4"><span class="text-emerald-500 font-semibold">✅ AAA</span></td></tr>
+            <tr><td class="p-4 font-mono text-heading">#6A7282 on #FFFFFF</td><td class="p-4 font-mono text-secondary">5.0:1</td><td class="p-4"><span class="text-emerald-500 font-semibold">✅ AA</span></td></tr>
+            <tr><td class="p-4 font-mono text-heading">#FFFFFF on #00BCFF</td><td class="p-4 font-mono text-secondary">3.1:1</td><td class="p-4"><span class="text-amber-500 font-semibold">⚠️ AA Large only</span></td></tr>
+            <tr><td class="p-4 font-mono text-heading">#FFFFFF on #00A6F4</td><td class="p-4 font-mono text-secondary">3.5:1</td><td class="p-4"><span class="text-amber-500 font-semibold">⚠️ AA Large only</span></td></tr>
+            <tr><td class="p-4 font-mono text-heading">#FFFFFF on #A684FF</td><td class="p-4 font-mono text-secondary">3.8:1</td><td class="p-4"><span class="text-amber-500 font-semibold">⚠️ AA Large only</span></td></tr>
+          </tbody>
+        </table>
+        <div class="p-4 bg-amber-50 border-t border-amber-100">
+          <p class="text-xs text-amber-500">⚠️ sky-400, sky-500, violet-400 위의 흰색 텍스트는 <strong>16px bold 이상</strong>에서만 WCAG AA 충족. 14px 이하에서는 주의.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 6. CARDS ========== -->
+    <section id="cards">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-1">Cards</p>
+        <h2 class="text-3xl font-bold text-heading">카드 컴포넌트</h2>
+        <p class="mt-2 text-secondary max-w-xl">Loop 여행용품 렌탈 서비스에 맞는 카드 패턴입니다.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <!-- 상품 카드 -->
+        <div class="bg-white rounded-[10px] shadow-card border border-[#E5E7EB] overflow-hidden hover:shadow-md transition-shadow">
+          <div class="bg-sky-50 flex items-center justify-center" style="aspect-ratio:4/3;">
+            <svg class="w-12 h-12 text-sky-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
+          </div>
+          <div class="p-4">
+            <span class="inline-block text-xs font-medium px-2.5 py-1 rounded" style="background:#EDE9FE; color:#8E51FF;">전자기기</span>
+            <h4 class="mt-2 text-heading" style="font-size:18px; font-weight:600; line-height:27px;">소니 WH-1000XM5</h4>
+            <div class="flex items-center gap-1 mt-1">
+              <svg class="w-4 h-4" style="color:#FDC700" fill="currentColor" viewBox="0 0 24 24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+              <span class="text-xs font-medium text-heading">4.8</span>
+              <span class="text-xs text-secondary">(126)</span>
+            </div>
+            <p class="mt-2 font-bold" style="color:#00A6F4; font-size:16px;">₩3,500<span class="text-xs font-normal text-secondary">/일</span></p>
+            <button class="mt-3 w-full py-2.5 rounded-[10px] text-white text-sm font-semibold transition-all" style="background:#00BCFF" onmouseover="this.style.background='#00A6F4'" onmouseout="this.style.background='#00BCFF'">예약하기</button>
+          </div>
+        </div>
+
+        <!-- 정보 카드 -->
+        <div class="bg-white rounded-[10px] shadow-card border border-[#E5E7EB] p-6 hover:shadow-md transition-shadow cursor-pointer group">
+          <div class="w-12 h-12 rounded-full bg-sky-100 flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0H21M3.375 14.25h5.25m0 0V6.375a1.125 1.125 0 011.125-1.125h2.25"/></svg>
+          </div>
+          <h4 class="text-heading" style="font-size:18px; font-weight:600; line-height:27px;">빠른 배송</h4>
+          <p class="text-sm text-secondary mt-2">출국 2일 전 배송, 귀국 후 무료 수거. 전국 어디서든 편리하게.</p>
+          <div class="mt-4 flex items-center gap-1 text-sky-400 text-sm font-medium group-hover:gap-2 transition-all">
+            자세히 보기
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </div>
+        </div>
+
+        <!-- 예약 상태 카드 -->
+        <div class="bg-white rounded-[10px] shadow-card border border-[#E5E7EB] p-4 hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-3">
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full" style="background:#D0FAE5; color:#00BC7D;">사용중</span>
+            <span class="text-xs text-secondary">D-5</span>
+          </div>
+          <div class="flex gap-3">
+            <div class="w-16 h-16 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">
+              <svg class="w-8 h-8 text-sky-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159"/></svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-heading">소니 WH-1000XM5</p>
+              <p class="text-xs text-secondary mt-0.5">04.01 ~ 04.10 (10일)</p>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs text-secondary">대여 진행률</span>
+              <span class="text-xs font-medium" style="color:#00BCFF;">50%</span>
+            </div>
+            <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full rounded-full" style="width:50%; background:#00BCFF;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 7. NAVIGATION ========== -->
+    <section id="navigation">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-emerald-500 uppercase tracking-widest mb-1">Navigation</p>
+        <h2 class="text-3xl font-bold text-heading">네비게이션 패턴</h2>
+        <p class="mt-2 text-secondary max-w-xl">Loop 앱의 네비게이션 컴포넌트 모음입니다.</p>
+      </div>
+
+      <div class="space-y-8">
+        <!-- Tab Bar -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-base font-bold text-heading mb-4">탭 바 (Tab Bar)</h3>
+          <div class="border-b border-[#E5E7EB] flex gap-6">
+            <button class="pb-3 text-sm font-medium border-b-2 transition-colors" style="color:#00BCFF; border-color:#00BCFF;">전체</button>
+            <button class="pb-3 text-sm font-medium text-secondary border-b-2 border-transparent hover:text-heading transition-colors">전자기기</button>
+            <button class="pb-3 text-sm font-medium text-secondary border-b-2 border-transparent hover:text-heading transition-colors relative">캠핑 장비
+              <span class="absolute -top-0.5 -right-2.5 w-2 h-2 rounded-full" style="background:#00BCFF;"></span>
+            </button>
+            <button class="pb-3 text-sm font-medium text-secondary border-b-2 border-transparent hover:text-heading transition-colors">스포츠</button>
+            <button class="pb-3 text-sm font-medium text-secondary border-b-2 border-transparent hover:text-heading transition-colors">여행 가방</button>
+          </div>
+          <p class="text-xs text-secondary mt-4"><strong class="text-heading">Active:</strong> sky-400 text + 2px bottom border · <strong class="text-heading">Default:</strong> gray text · <strong class="text-heading">Badge:</strong> sky-400 dot</p>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-base font-bold text-heading mb-4">브레드크럼 (Breadcrumb)</h3>
+          <nav class="flex items-center gap-2 text-sm">
+            <a href="#" class="text-secondary hover:text-sky-400 transition-colors">홈</a>
+            <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+            <a href="#" class="text-secondary hover:text-sky-400 transition-colors">전자기기</a>
+            <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+            <span class="font-medium text-heading">소니 WH-1000XM5</span>
+          </nav>
+        </div>
+
+        <!-- Pagination -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-base font-bold text-heading mb-4">페이지네이션 (Pagination)</h3>
+          <div class="flex items-center gap-2">
+            <button class="w-9 h-9 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-secondary hover:border-sky-400 hover:text-sky-400 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+            </button>
+            <button class="w-9 h-9 rounded-lg text-sm font-medium text-secondary hover:bg-gray-100 transition-colors">1</button>
+            <button class="w-9 h-9 rounded-lg text-sm font-medium text-white" style="background:#00BCFF;">2</button>
+            <button class="w-9 h-9 rounded-lg text-sm font-medium text-secondary hover:bg-gray-100 transition-colors">3</button>
+            <button class="w-9 h-9 rounded-lg text-sm font-medium text-secondary hover:bg-gray-100 transition-colors">4</button>
+            <span class="text-secondary text-sm">...</span>
+            <button class="w-9 h-9 rounded-lg text-sm font-medium text-secondary hover:bg-gray-100 transition-colors">12</button>
+            <button class="w-9 h-9 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-secondary hover:border-sky-400 hover:text-sky-400 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 8. MODALS ========== -->
+    <section id="modals">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-rose-400 uppercase tracking-widest mb-1">Modal / Dialog</p>
+        <h2 class="text-3xl font-bold text-heading">모달 & 다이얼로그</h2>
+        <p class="mt-2 text-secondary max-w-xl">사용자 확인, 경고, 피드백을 위한 오버레이 컴포넌트입니다.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <!-- 확인 모달 -->
+        <div class="rounded-[10px] p-6" style="background:rgba(0,0,0,0.03); backdrop-filter:blur(4px);">
+          <p class="text-xs font-semibold text-secondary uppercase tracking-wider mb-3">확인 모달</p>
+          <div class="bg-white rounded-[10px] p-6" style="box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style="background:#D0FAE5;">
+              <svg class="w-6 h-6" style="color:#00BC7D" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h4 class="text-center text-heading font-bold text-lg">예약이 완료되었습니다</h4>
+            <p class="text-center text-sm text-secondary mt-2">소니 WH-1000XM5 헤드폰이<br>04.01 ~ 04.10 기간으로 예약되었습니다.</p>
+            <div class="flex gap-3 mt-6">
+              <button class="flex-1 py-2.5 rounded-[10px] text-sm font-semibold bg-gray-100 text-heading hover:bg-gray-200 transition-colors">닫기</button>
+              <button class="flex-1 py-2.5 rounded-[10px] text-sm font-semibold text-white transition-all" style="background:#00BCFF" onmouseover="this.style.background='#00A6F4'" onmouseout="this.style.background='#00BCFF'">내 예약 보기</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 경고 모달 -->
+        <div class="rounded-[10px] p-6" style="background:rgba(0,0,0,0.03); backdrop-filter:blur(4px);">
+          <p class="text-xs font-semibold text-secondary uppercase tracking-wider mb-3">경고 모달</p>
+          <div class="bg-white rounded-[10px] p-6" style="box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style="background:#FEF3C6;">
+              <svg class="w-6 h-6" style="color:#FE9A00" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+            </div>
+            <h4 class="text-center text-heading font-bold text-lg">예약을 취소하시겠습니까?</h4>
+            <p class="text-center text-sm text-secondary mt-2">취소 시 환불 규정에 따라<br>수수료가 발생할 수 있습니다.</p>
+            <div class="flex gap-3 mt-6">
+              <button class="flex-1 py-2.5 rounded-[10px] text-sm font-semibold bg-gray-100 text-heading hover:bg-gray-200 transition-colors">돌아가기</button>
+              <button class="flex-1 py-2.5 rounded-[10px] text-sm font-semibold text-white transition-all" style="background:#FF637E" onmouseover="this.style.background='#FF2056'" onmouseout="this.style.background='#FF637E'">예약 취소</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Notifications -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+        <h3 class="text-base font-bold text-heading mb-4">토스트 알림 (Toast)</h3>
+        <div class="space-y-3">
+          <!-- Success -->
+          <div class="rounded-[10px] p-4 flex items-start gap-3 relative overflow-hidden" style="background:#ECFDF5; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background:#D0FAE5;"><svg class="w-4 h-4" style="color:#00BC7D" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg></div>
+            <div class="flex-1"><p class="text-sm font-semibold text-heading">예약 완료!</p><p class="text-xs text-secondary mt-0.5">소니 WH-1000XM5 예약이 확정되었습니다.</p></div>
+            <button class="text-secondary hover:text-heading"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div class="absolute bottom-0 left-0 h-1 rounded-full toast-progress" style="background:#00BC7D;"></div>
+          </div>
+          <!-- Warning -->
+          <div class="rounded-[10px] p-4 flex items-start gap-3 relative overflow-hidden" style="background:#FFFBEB; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background:#FEF3C6;"><svg class="w-4 h-4" style="color:#FE9A00" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008"/></svg></div>
+            <div class="flex-1"><p class="text-sm font-semibold text-heading">반납 기한 임박</p><p class="text-xs text-secondary mt-0.5">3일 후 반납 예정입니다. 연장이 필요하신가요?</p></div>
+            <button class="text-secondary hover:text-heading"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div class="absolute bottom-0 left-0 h-1 rounded-full" style="background:#FE9A00; width:60%;"></div>
+          </div>
+          <!-- Error -->
+          <div class="rounded-[10px] p-4 flex items-start gap-3 relative overflow-hidden" style="background:#FFF1F2; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background:#FFE4E6;"><svg class="w-4 h-4" style="color:#FF637E" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></div>
+            <div class="flex-1"><p class="text-sm font-semibold text-heading">결제 실패</p><p class="text-xs text-secondary mt-0.5">카드 정보를 확인해주세요.</p></div>
+            <button class="text-secondary hover:text-heading"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div class="absolute bottom-0 left-0 h-1 rounded-full" style="background:#FF637E; width:80%;"></div>
+          </div>
+          <!-- Info -->
+          <div class="rounded-[10px] p-4 flex items-start gap-3 relative overflow-hidden" style="background:#F0F9FF; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background:#DFF2FE;"><svg class="w-4 h-4" style="color:#00BCFF" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg></div>
+            <div class="flex-1"><p class="text-sm font-semibold text-heading">배송 시작</p><p class="text-xs text-secondary mt-0.5">상품이 발송되었습니다. 내일 도착 예정입니다.</p></div>
+            <button class="text-secondary hover:text-heading"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div class="absolute bottom-0 left-0 h-1 rounded-full" style="background:#00BCFF; width:40%;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 9. PROGRESS ========== -->
+    <section id="progress">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-sky-400 uppercase tracking-widest mb-1">Progress & Loading</p>
+        <h2 class="text-3xl font-bold text-heading">프로그레스 & 로딩</h2>
+        <p class="mt-2 text-secondary max-w-xl">진행 상태와 로딩 인디케이터 패턴입니다.</p>
+      </div>
+
+      <div class="space-y-8">
+        <!-- Progress Bars -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-base font-bold text-heading mb-4">프로그레스 바</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between mb-1"><span class="text-xs text-secondary">일반 (sky-400)</span><span class="text-xs font-medium" style="color:#00BCFF">65%</span></div>
+              <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:65%; background:#00BCFF;"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span class="text-xs text-secondary">완료 (emerald-400)</span><span class="text-xs font-medium" style="color:#00D492">100%</span></div>
+              <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:100%; background:#00D492;"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1"><span class="text-xs text-secondary">주의 (amber-400)</span><span class="text-xs font-medium" style="color:#FE9A00">85%</span></div>
+              <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:85%; background:#FE9A00;"></div></div>
+            </div>
+          </div>
+          <p class="text-xs text-secondary mt-4"><strong class="text-heading">스펙:</strong> 높이 8px · border-radius: full · 배경: gray-200</p>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-base font-bold text-heading mb-6">스텝 인디케이터 — Loop 예약 플로우</h3>
+          <div class="flex items-center justify-between max-w-lg mx-auto">
+            <!-- Step 1: Complete -->
+            <div class="flex flex-col items-center gap-2">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:#00BC7D;">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              </div>
+              <span class="text-xs font-medium text-heading">상품선택</span>
+            </div>
+            <div class="flex-1 h-0.5 mx-2" style="background:#00BC7D;"></div>
+            <!-- Step 2: Complete -->
+            <div class="flex flex-col items-center gap-2">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:#00BC7D;">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+              </div>
+              <span class="text-xs font-medium text-heading">일정선택</span>
+            </div>
+            <div class="flex-1 h-0.5 mx-2" style="background:#00BCFF;"></div>
+            <!-- Step 3: Current -->
+            <div class="flex flex-col items-center gap-2">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:#00BCFF;">3</div>
+              <span class="text-xs font-semibold" style="color:#00BCFF;">결제</span>
+            </div>
+            <div class="flex-1 h-0.5 mx-2 bg-gray-200"></div>
+            <!-- Step 4: Pending -->
+            <div class="flex flex-col items-center gap-2">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-secondary font-bold text-sm bg-gray-200">4</div>
+              <span class="text-xs text-secondary">완료</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skeleton Loading -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-base font-bold text-heading mb-4">스켈레톤 로딩</h3>
+          <div class="grid md:grid-cols-3 gap-4">
+            <!-- Skeleton Card -->
+            <div class="rounded-[10px] border border-[#E5E7EB] overflow-hidden">
+              <div class="skeleton" style="height:140px; border-radius:0;"></div>
+              <div class="p-4 space-y-3">
+                <div class="skeleton" style="height:12px; width:60%;"></div>
+                <div class="skeleton" style="height:16px; width:80%;"></div>
+                <div class="skeleton" style="height:12px; width:40%;"></div>
+                <div class="skeleton" style="height:36px; width:100%; border-radius:10px;"></div>
+              </div>
+            </div>
+            <!-- Skeleton Text -->
+            <div class="rounded-[10px] border border-[#E5E7EB] p-4 space-y-3">
+              <div class="flex items-center gap-3">
+                <div class="skeleton" style="width:40px; height:40px; border-radius:9999px;"></div>
+                <div class="flex-1 space-y-2">
+                  <div class="skeleton" style="height:12px; width:70%;"></div>
+                  <div class="skeleton" style="height:10px; width:50%;"></div>
+                </div>
+              </div>
+              <div class="skeleton" style="height:10px; width:100%;"></div>
+              <div class="skeleton" style="height:10px; width:90%;"></div>
+              <div class="skeleton" style="height:10px; width:75%;"></div>
+            </div>
+            <!-- Skeleton List -->
+            <div class="rounded-[10px] border border-[#E5E7EB] p-4 space-y-4">
+              <div class="flex gap-3"><div class="skeleton" style="width:48px; height:48px; border-radius:8px;"></div><div class="flex-1 space-y-2"><div class="skeleton" style="height:12px; width:80%;"></div><div class="skeleton" style="height:10px; width:60%;"></div></div></div>
+              <div class="flex gap-3"><div class="skeleton" style="width:48px; height:48px; border-radius:8px;"></div><div class="flex-1 space-y-2"><div class="skeleton" style="height:12px; width:70%;"></div><div class="skeleton" style="height:10px; width:50%;"></div></div></div>
+              <div class="flex gap-3"><div class="skeleton" style="width:48px; height:48px; border-radius:8px;"></div><div class="flex-1 space-y-2"><div class="skeleton" style="height:12px; width:75%;"></div><div class="skeleton" style="height:10px; width:55%;"></div></div></div>
+            </div>
+          </div>
+          <p class="text-xs text-secondary mt-4"><strong class="text-heading">스펙:</strong> gray-200 배경 · shimmer 애니메이션 1.5s ease-in-out infinite · gradient 200% width</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 10. DESIGN TOKENS ========== -->
+    <section id="tokens">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-heading uppercase tracking-widest mb-1">Design Tokens</p>
+        <h2 class="text-3xl font-bold text-heading">디자인 토큰 요약</h2>
+        <p class="mt-2 text-secondary max-w-xl">Loop 디자인 시스템의 모든 토큰을 CSS Custom Properties로 정리한 레퍼런스입니다.</p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden">
+        <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+          <span class="text-sm font-bold text-heading">:root — CSS Custom Properties</span>
+        </div>
+        <pre class="p-6 text-xs font-mono text-body overflow-x-auto leading-relaxed" style="background:#FAFAFA;"><code>:root {
+  /* ======================== */
+  /* Colors - Brand: Sky Blue */
+  /* ======================== */
+  --color-sky-50: #F0F9FF;
+  --color-sky-100: #DFF2FE;
+  --color-sky-300: #74D4FF;
+  --color-sky-400: #00BCFF;   /* ★ Primary */
+  --color-sky-500: #00A6F4;
+
+  /* Colors - Brand: Violet */
+  --color-violet-50: #F5F3FF;
+  --color-violet-100: #EDE9FE;
+  --color-violet-300: #C4B4FF;
+  --color-violet-400: #A684FF;
+  --color-violet-500: #8E51FF;
+
+  /* Colors - Brand: Rose */
+  --color-rose-50: #FFF1F2;
+  --color-rose-100: #FFE4E6;
+  --color-rose-300: #FFA1AD;
+  --color-rose-400: #FF637E;
+  --color-rose-500: #FF2056;
+
+  /* Colors - Semantic: Emerald */
+  --color-emerald-50: #ECFDF5;
+  --color-emerald-100: #D0FAE5;
+  --color-emerald-400: #00D492;
+  --color-emerald-500: #00BC7D;
+
+  /* Colors - Semantic: Amber */
+  --color-amber-50: #FFFBEB;
+  --color-amber-100: #FEF3C6;
+  --color-amber-500: #FE9A00;
+
+  /* Colors - Semantic: Yellow */
+  --color-yellow-50: #FEFCE8;
+  --color-yellow-100: #FEF9C2;
+  --color-yellow-400: #FDC700;
+  --color-yellow-600: #D08700;
+  --color-yellow-700: #B27300;
+
+  /* Colors - Text */
+  --color-heading: #101828;
+  --color-body: #4A5565;
+  --color-secondary: #6A7282;
+  --color-placeholder: #9CA3AF;
+  --color-border: #E5E7EB;
+  --color-bg: #F9FAFB;
+  --color-bg-disabled: #F9FAFB;
+  --color-footer-bg: #1E2939;
+  --color-footer-text: #99A1AF;
+
+  /* ======================== */
+  /* Typography               */
+  /* ======================== */
+  --font-family: 'Inter', sans-serif;
+  --font-family-mono: 'Menlo', monospace;
+
+  --font-size-display: 36px;
+  --font-size-h1: 24px;
+  --font-size-h2: 20px;
+  --font-size-h3: 18px;
+  --font-size-body-lg: 16px;
+  --font-size-body: 14px;
+  --font-size-caption: 12px;
+  --font-size-code: 12px;
+  --font-size-btn-lg: 16px;
+  --font-size-btn: 14px;
+
+  --line-height-display: 40px;
+  --line-height-h1: 32px;
+  --line-height-h2: 28px;
+  --line-height-h3: 27px;
+  --line-height-body-lg: 24px;
+  --line-height-body: 20px;
+  --line-height-caption: 16px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ======================== */
+  /* Spacing (8pt grid)       */
+  /* ======================== */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+
+  /* ======================== */
+  /* Border Radius            */
+  /* ======================== */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-full: 9999px;
+
+  /* ======================== */
+  /* Shadows / Elevation      */
+  /* ======================== */
+  --shadow-none: none;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+
+  /* ======================== */
+  /* Gradients                */
+  /* ======================== */
+  --gradient-hero: linear-gradient(135deg, #74D4FF, #C4B4FF, #FFA1AD);
+  --gradient-cta: linear-gradient(90deg, #00BCFF, #A684FF);
+  --gradient-recommend: linear-gradient(90deg, #F5F3FF, #FFF1F2);
+  --gradient-complete: linear-gradient(135deg, #F0F9FF, #F5F3FF);
+}</code></pre>
+      </div>
+    </section>
+
+<!-- ========== VISUAL THEME ========== -->
+    <section id="theme">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-sky-400 uppercase tracking-widest mb-1">Visual Theme</p>
+        <h2 class="text-3xl font-bold text-heading">비주얼 테마 & 분위기</h2>
+        <p class="mt-2 text-secondary max-w-xl">Loop.day의 디자인 철학 — "밝고 가벼운 신뢰". 렌탈이라는 금전 거래를 파스텔 톤으로 부드럽게 감싸면서도, 비교 데이터의 정확성과 투명성을 해치지 않는 균형.</p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6 mb-6">
+        <h3 class="text-lg font-bold text-heading mb-4">브랜드 철학</h3>
+        <p class="text-secondary mb-4">페이지는 밝은 off-white 캔버스(<code class="text-xs font-mono bg-[#F9FAFB] px-1.5 py-0.5 rounded">#F9FAFB</code>)에서 시작한다. 순수 white가 아닌 미세하게 따뜻한 회색이 배경이 되어, 그 위의 white 카드들이 자연스럽게 떠오르는 느낌을 준다. 이 1단계 elevation이 Loop의 기본 공간감이다.</p>
+        <p class="text-secondary">브랜드 아이덴티티는 <span class="font-semibold text-sky-400">Sky Blue(#00BCFF)</span> → <span class="font-semibold text-violet-400">Violet(#A684FF)</span> 그라데이션으로 압축된다. 타이포그래피는 Inter — 가장 범용적이고 가독성 높은 sans-serif. 콘텐츠(렌탈 정보, 가격, 비교 데이터)가 주인공이고, UI는 무대.</p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+        <h3 class="text-lg font-bold text-heading mb-4">Key Characteristics</h3>
+        <ul class="space-y-3 text-secondary">
+          <li class="flex items-start gap-2"><span class="text-sky-400 mt-0.5">•</span>밝은 off-white(<code class="text-xs font-mono bg-[#F9FAFB] px-1.5 py-0.5 rounded">#F9FAFB</code>) 캔버스 위 white 카드 — 1단계 자연 elevation</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 mt-0.5">•</span>Sky Blue <code class="text-xs font-mono bg-sky-50 text-sky-400 px-1.5 py-0.5 rounded">#00BCFF</code> primary → Violet <code class="text-xs font-mono bg-violet-50 text-violet-400 px-1.5 py-0.5 rounded">#A684FF</code> secondary 축</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 mt-0.5">•</span>3-color 히어로 그라데이션(<code class="text-xs font-mono bg-[#F9FAFB] px-1.5 py-0.5 rounded">#74D4FF → #C4B4FF → #FFA1AD</code>) — 히어로에만</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 mt-0.5">•</span>Inter font, weight 400–700, display 최대 36px</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 mt-0.5">•</span>10px border-radius가 기본 — 부드럽지만 pill 아님</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 mt-0.5">•</span>가벼운 2-layer shadow (<code class="text-xs font-mono bg-[#F9FAFB] px-1.5 py-0.5 rounded">rgba(0,0,0,0.1)</code> 기반) — Tailwind 표준 shadow 체계</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 mt-0.5">•</span>Heading은 <code class="text-xs font-mono bg-[#F9FAFB] px-1.5 py-0.5 rounded">#101828</code> (warm near-black), body는 <code class="text-xs font-mono bg-[#F9FAFB] px-1.5 py-0.5 rounded">#4A5565</code> (slate)</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 mt-0.5">•</span>모바일 퍼스트 375px — Z세대 = 모바일 네이티브</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ========== DO'S AND DON'TS ========== -->
+    <section id="dos-donts">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-rose-400 uppercase tracking-widest mb-1">Do's &amp; Don'ts</p>
+        <h2 class="text-3xl font-bold text-heading">디자인 규칙</h2>
+        <p class="mt-2 text-secondary max-w-xl">Loop 디자인 시스템의 핵심 규칙. 일관성을 유지하기 위해 반드시 지켜야 할 Do와 절대 하지 말아야 할 Don't.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Do's -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-lg font-bold text-emerald-500 mb-4 flex items-center gap-2">✅ Do</h3>
+          <ul class="space-y-3 text-sm text-secondary">
+            <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold shrink-0">✅</span><span><strong class="text-heading">Sky Blue #00BCFF를 primary CTA에만 사용</strong> — 한 화면에 sky-400 버튼은 1~2개</span></li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold shrink-0">✅</span><span><strong class="text-heading">그라데이션은 용도별 구분 엄수</strong> — 3-color(히어로만), 2-color CTA(sky→violet), 50단계(추천/완료 배경)</span></li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold shrink-0">✅</span><span><strong class="text-heading">카드에는 항상 border + shadow-sm</strong> — 1px solid #E5E7EB + shadow 둘 다 적용</span></li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold shrink-0">✅</span><span><strong class="text-heading">상태 색상은 semantic에만</strong> — Emerald=성공, Amber=주의, Rose=에러/취소</span></li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold shrink-0">✅</span><span><strong class="text-heading">body text는 #4A5565</strong> — heading만 #101828</span></li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold shrink-0">✅</span><span><strong class="text-heading">border-radius 10px이 기본</strong> — 버튼, 카드, 모달, 토스트 모두 10px. 8px은 input에만</span></li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold shrink-0">✅</span><span><strong class="text-heading">focus ring은 sky-400 기반</strong> — box-shadow: 0 0 0 3px rgba(0, 188, 255, 0.3)</span></li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold shrink-0">✅</span><span><strong class="text-heading">뱃지/태그는 100단계 배경 + 500단계 텍스트</strong> — sky-100 bg + sky-500 text</span></li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold shrink-0">✅</span><span><strong class="text-heading">Inter weight 사용 규칙</strong> — 400(body), 500(button/nav), 600(heading 2~3), 700(heading 1, display)</span></li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold shrink-0">✅</span><span><strong class="text-heading">모바일 375px에서 먼저 설계</strong> — 데스크톱은 확장, 모바일이 기본</span></li>
+          </ul>
+        </div>
+
+        <!-- Don'ts -->
+        <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+          <h3 class="text-lg font-bold text-rose-400 mb-4 flex items-center gap-2">❌ Don't</h3>
+          <ul class="space-y-3 text-sm text-secondary">
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">❌</span><span><strong class="text-heading">다크 모드 색상을 light 모드에 섞지 마라</strong> — #1E2939는 footer에만</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">❌</span><span><strong class="text-heading">Violet을 단독 CTA로 쓰지 마라</strong> — Violet은 secondary. primary CTA는 항상 Sky Blue</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">❌</span><span><strong class="text-heading">Rose/Pink를 장식적으로 남발하지 마라</strong> — Rose-400은 경고/취소/에러에만</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">❌</span><span><strong class="text-heading">shadow-lg 이상을 카드에 쓰지 마라</strong> — 카드는 shadow-sm. shadow-lg는 모달에만</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">❌</span><span><strong class="text-heading">pill shape(9999px) 버튼을 만들지 마라</strong> — Loop 버튼은 10px radius</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">❌</span><span><strong class="text-heading">heading 크기를 36px 이상으로 올리지 마라</strong> — display 최대 36px</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">❌</span><span><strong class="text-heading">그라데이션 텍스트를 사용하지 마라</strong> — 그라데이션은 배경/버튼에만</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">❌</span><span><strong class="text-heading">border 없이 카드를 만들지 마라</strong> — #E5E7EB border 필수</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">❌</span><span><strong class="text-heading">Yellow/Gold를 경고에 쓰지 마라</strong> — Yellow는 리뷰/별점 전용. 경고는 Amber</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 font-bold shrink-0">❌</span><span><strong class="text-heading">font-weight 300(light)을 사용하지 마라</strong> — Loop는 400이 최소</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== RESPONSIVE ========== -->
+    <section id="responsive">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-1">Responsive</p>
+        <h2 class="text-3xl font-bold text-heading">반응형 동작</h2>
+        <p class="mt-2 text-secondary max-w-xl">모바일 퍼스트 설계 기준. 375px에서 시작해 데스크톱으로 확장하는 반응형 전략.</p>
+      </div>
+
+      <!-- Breakpoints Table -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden mb-8">
+        <h3 class="text-sm font-bold text-heading p-4 border-b border-[#E5E7EB] bg-[#F9FAFB]">Breakpoints</h3>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Name</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Width</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Tailwind</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Key Changes</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E5E7EB]">
+            <tr><td class="p-4 text-secondary">Mobile Small</td><td class="p-4 font-mono text-secondary">&lt; 375px</td><td class="p-4 font-mono text-violet-400">max-sm</td><td class="p-4 text-secondary">최소 지원 — 컨텐츠 잘림 방지만</td></tr>
+            <tr class="bg-sky-50/50"><td class="p-4 font-bold text-heading">Mobile (기본) ★</td><td class="p-4 font-mono font-semibold text-heading">375–639px</td><td class="p-4 font-mono text-violet-400 font-semibold">default</td><td class="p-4 text-heading font-medium">설계 기준. 단일 컬럼, 16px 좌우 패딩</td></tr>
+            <tr><td class="p-4 text-secondary">Tablet</td><td class="p-4 font-mono text-secondary">640–1023px</td><td class="p-4 font-mono text-violet-400">sm ~ lg</td><td class="p-4 text-secondary">2-column 그리드, 24px 패딩</td></tr>
+            <tr><td class="p-4 text-secondary">Desktop</td><td class="p-4 font-mono text-secondary">1024–1279px</td><td class="p-4 font-mono text-violet-400">lg</td><td class="p-4 text-secondary">3-column 카드, 풀 네비게이션</td></tr>
+            <tr><td class="p-4 text-secondary">Large Desktop</td><td class="p-4 font-mono text-secondary">1280px+</td><td class="p-4 font-mono text-violet-400">xl</td><td class="p-4 text-secondary">max-width 1200px 센터링, 32px+ 패딩</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Touch Targets -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6 mb-8">
+        <h3 class="text-lg font-bold text-heading mb-4">Touch Targets</h3>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center shrink-0"><span class="text-violet-400 text-lg">👆</span></div>
+            <div><p class="text-sm font-semibold text-heading">최소 44×44px</p><p class="text-xs text-secondary">모든 interactive 요소의 최소 터치 영역</p></div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center shrink-0"><span class="text-violet-400 text-lg">🔘</span></div>
+            <div><p class="text-sm font-semibold text-heading">버튼 패딩</p><p class="text-xs text-secondary">12px 24px (mobile) / 12px 16px (compact)</p></div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center shrink-0"><span class="text-violet-400 text-lg">☑️</span></div>
+            <div><p class="text-sm font-semibold text-heading">체크박스/라디오</p><p class="text-xs text-secondary">20×20px + 12px gap to label</p></div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center shrink-0"><span class="text-violet-400 text-lg">🔗</span></div>
+            <div><p class="text-sm font-semibold text-heading">탭/네비 링크</p><p class="text-xs text-secondary">14px text + 충분한 surrounding padding</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapsing Strategy -->
+      <div class="mb-8">
+        <h3 class="text-lg font-bold text-heading mb-4">Collapsing Strategy</h3>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-4">
+            <p class="text-xs font-semibold text-violet-400 uppercase mb-1">히어로 영역</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Desktop:</strong> 36px display, 수평 CTA 2개</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Mobile:</strong> 28px display, 풀폭 CTA 스택</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-4">
+            <p class="text-xs font-semibold text-violet-400 uppercase mb-1">카드 그리드</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Desktop:</strong> 3-column (grid-cols-3)</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Mobile:</strong> 1-column 스택, 카드 풀폭</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-4">
+            <p class="text-xs font-semibold text-violet-400 uppercase mb-1">네비게이션</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Desktop:</strong> 수평 링크 + CTA 버튼</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Mobile:</strong> 햄버거 → 드롭다운 overlay</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-4">
+            <p class="text-xs font-semibold text-violet-400 uppercase mb-1">비교 카드 리스트</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Desktop:</strong> 가로 나열 / 테이블 뷰</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Mobile:</strong> 세로 스택, 필터 sticky</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-4">
+            <p class="text-xs font-semibold text-violet-400 uppercase mb-1">탭 바</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Desktop:</strong> 전체 탭 노출</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Mobile:</strong> 수평 스크롤 + 페이드 힌트</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-4">
+            <p class="text-xs font-semibold text-violet-400 uppercase mb-1">모달</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Desktop:</strong> center overlay, max-w 480px</p>
+            <p class="text-sm text-secondary"><strong class="text-heading">Mobile:</strong> bottom sheet, 10px 10px 0 0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spacing Scaling -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] overflow-hidden">
+        <h3 class="text-sm font-bold text-heading p-4 border-b border-[#E5E7EB] bg-[#F9FAFB]">Spacing Scaling</h3>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">요소</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Mobile</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Tablet</th>
+              <th class="text-left p-4 text-xs font-semibold text-secondary uppercase">Desktop</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E5E7EB]">
+            <tr><td class="p-4 font-medium text-heading">Page padding</td><td class="p-4 font-mono text-secondary">16px</td><td class="p-4 font-mono text-secondary">24px</td><td class="p-4 font-mono text-secondary">32px</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Section gap</td><td class="p-4 font-mono text-secondary">48px</td><td class="p-4 font-mono text-secondary">64px</td><td class="p-4 font-mono text-secondary">80px</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Card padding</td><td class="p-4 font-mono text-secondary">16px</td><td class="p-4 font-mono text-secondary">20px</td><td class="p-4 font-mono text-secondary">24px</td></tr>
+            <tr><td class="p-4 font-medium text-heading">Card gap</td><td class="p-4 font-mono text-secondary">16px</td><td class="p-4 font-mono text-secondary">20px</td><td class="p-4 font-mono text-secondary">24px</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========== AGENT GUIDE ========== -->
+    <section id="agent-guide">
+      <div class="mb-10">
+        <p class="text-sm font-semibold text-emerald-500 uppercase tracking-widest mb-1">Agent Guide</p>
+        <h2 class="text-3xl font-bold text-heading">에이전트 프롬프트 가이드</h2>
+        <p class="mt-2 text-secondary max-w-xl">AI 에이전트가 Loop UI를 생성할 때 참조하는 빠른 색상 레퍼런스, 예시 프롬프트, 반복 가이드.</p>
+      </div>
+
+      <!-- Quick Color Reference -->
+      <div class="mb-8">
+        <h3 class="text-lg font-bold text-heading mb-4">Quick Color Reference</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#00BCFF"></div>
+            <div><p class="text-xs font-bold text-heading">Primary CTA</p><p class="text-[11px] font-mono text-secondary">#00BCFF</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#00A6F4"></div>
+            <div><p class="text-xs font-bold text-heading">Primary Hover</p><p class="text-[11px] font-mono text-secondary">#00A6F4</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#A684FF"></div>
+            <div><p class="text-xs font-bold text-heading">Secondary</p><p class="text-[11px] font-mono text-secondary">#A684FF</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:linear-gradient(90deg, #00BCFF, #A684FF)"></div>
+            <div><p class="text-xs font-bold text-heading">Gradient CTA</p><p class="text-[11px] font-mono text-secondary">sky→violet</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#F9FAFB"></div>
+            <div><p class="text-xs font-bold text-heading">Page BG</p><p class="text-[11px] font-mono text-secondary">#F9FAFB</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0 border border-[#E5E7EB]" style="background:#FFFFFF"></div>
+            <div><p class="text-xs font-bold text-heading">Card BG</p><p class="text-[11px] font-mono text-secondary">#FFFFFF</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#101828"></div>
+            <div><p class="text-xs font-bold text-heading">Heading</p><p class="text-[11px] font-mono text-secondary">#101828</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#4A5565"></div>
+            <div><p class="text-xs font-bold text-heading">Body</p><p class="text-[11px] font-mono text-secondary">#4A5565</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#6A7282"></div>
+            <div><p class="text-xs font-bold text-heading">Secondary Text</p><p class="text-[11px] font-mono text-secondary">#6A7282</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#E5E7EB"></div>
+            <div><p class="text-xs font-bold text-heading">Border</p><p class="text-[11px] font-mono text-secondary">#E5E7EB</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#00BC7D"></div>
+            <div><p class="text-xs font-bold text-heading">Success</p><p class="text-[11px] font-mono text-secondary">#00BC7D</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#FE9A00"></div>
+            <div><p class="text-xs font-bold text-heading">Warning</p><p class="text-[11px] font-mono text-secondary">#FE9A00</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#FF637E"></div>
+            <div><p class="text-xs font-bold text-heading">Error</p><p class="text-[11px] font-mono text-secondary">#FF637E</p></div>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg shrink-0" style="background:#FDC700"></div>
+            <div><p class="text-xs font-bold text-heading">Review/Star</p><p class="text-[11px] font-mono text-secondary">#FDC700</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Example Prompts -->
+      <div class="mb-8">
+        <h3 class="text-lg font-bold text-heading mb-4">Example Component Prompts</h3>
+        <div class="space-y-4">
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-5">
+            <p class="text-xs font-semibold text-emerald-500 uppercase mb-2">히어로 섹션</p>
+            <pre class="bg-[#F9FAFB] rounded-lg p-4 text-xs font-mono text-body overflow-x-auto whitespace-pre-wrap">"375px 모바일. #F9FAFB 배경 위에 linear-gradient(135deg, #74D4FF, #C4B4FF, #FFA1AD) 히어로 영역. 28px Inter weight 700 white 텍스트, 16px weight 400 white 0.9 opacity 서브텍스트. 풀폭 gradient-cta 버튼(linear-gradient(90deg, #00BCFF, #A684FF), 10px radius, 12px 24px padding, white 16px 600 텍스트)."</pre>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-5">
+            <p class="text-xs font-semibold text-emerald-500 uppercase mb-2">비교 카드</p>
+            <pre class="bg-[#F9FAFB] rounded-lg p-4 text-xs font-mono text-body overflow-x-auto whitespace-pre-wrap">"white 배경, 1px solid #E5E7EB border, 10px radius. Shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1). 상단 4:3 이미지 영역(sky-50 bg). 하단 padding 16px. Violet-100 bg + Violet-500 text 카테고리 태그(4px radius). 18px/600 #101828 제목. Yellow-400 별점 + 14px/400 #4A5565 리뷰 수. Sky-500 가격(#00A6F4, 16px/700). 풀폭 sky-400 CTA 버튼."</pre>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-5">
+            <p class="text-xs font-semibold text-emerald-500 uppercase mb-2">필터 바</p>
+            <pre class="bg-[#F9FAFB] rounded-lg p-4 text-xs font-mono text-body overflow-x-auto whitespace-pre-wrap">"상단 sticky. white bg, bottom border #E5E7EB. 날짜 선택: #F9FAFB bg input, #E5E7EB border, 8px radius, sky-400 focus ring. 세그먼트 컨트롤: #F9FAFB bg, active는 white bg + shadow-sm + sky-400 text. 칩 필터: #F9FAFB bg, 9999px radius, active는 sky-100 bg + sky-500 text + 1px solid #00BCFF."</pre>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-5">
+            <p class="text-xs font-semibold text-emerald-500 uppercase mb-2">상태 뱃지</p>
+            <pre class="bg-[#F9FAFB] rounded-lg p-4 text-xs font-mono text-body overflow-x-auto whitespace-pre-wrap">"pill shape(9999px). 배송중: #DFF2FE bg, #00A6F4 text, 14px/500. 사용중: #D0FAE5 bg, #00BC7D text. 반납예정: #FEF3C6 bg, #FE9A00 text. 반납완료: gray-100 bg, gray-600 text."</pre>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-5">
+            <p class="text-xs font-semibold text-emerald-500 uppercase mb-2">토스트 알림</p>
+            <pre class="bg-[#F9FAFB] rounded-lg p-4 text-xs font-mono text-body overflow-x-auto whitespace-pre-wrap">"fixed bottom-right (desktop) / bottom-center (mobile). 10px radius, shadow-md. Success: #ECFDF5 bg, #00BC7D 프로그레스 바. Error: #FFF1F2 bg, #FF637E 프로그레스 바. 4초 후 자동 닫힘."</pre>
+          </div>
+          <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-5">
+            <p class="text-xs font-semibold text-emerald-500 uppercase mb-2">모달</p>
+            <pre class="bg-[#F9FAFB] rounded-lg p-4 text-xs font-mono text-body overflow-x-auto whitespace-pre-wrap">"center overlay (desktop), bottom-sheet (mobile). white bg, 10px radius (mobile: 10px 10px 0 0), shadow-lg. 상단 48px 원형 아이콘(emerald-100 bg, emerald-500 아이콘). 18px/700 heading, 14px/400 #6A7282 body. 하단 2-button row: gray-100 secondary + sky-400 primary."</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Iteration Guide -->
+      <div class="bg-white rounded-lg shadow-card border border-[#E5E7EB] p-6">
+        <h3 class="text-lg font-bold text-heading mb-4">Iteration Guide</h3>
+        <ol class="space-y-3 text-sm text-secondary list-decimal list-inside">
+          <li><strong class="text-heading">배경은 항상 #F9FAFB</strong> — 카드/모달만 #ffffff. 페이지 배경에 흰색 사용 ❌</li>
+          <li><strong class="text-heading">Sky Blue #00BCFF가 유일한 primary interactive 색상</strong> — 모든 CTA, focus, active는 이 색에서 파생</li>
+          <li><strong class="text-heading">border-radius 10px 기본</strong> — 8px는 input에만, 4px는 태그에만, 9999px는 pill 뱃지에만</li>
+          <li><strong class="text-heading">shadow는 Tailwind 표준</strong> — shadow(카드), shadow-md(드롭다운), shadow-lg(모달), shadow-xl(토스트)</li>
+          <li><strong class="text-heading">heading #101828, body #4A5565, secondary #6A7282</strong> — 3단계 텍스트 위계 엄수</li>
+          <li><strong class="text-heading">Inter font만 사용</strong> — weight 400/500/600/700. 300이나 800 사용 ❌</li>
+          <li><strong class="text-heading">그라데이션 3종만 사용</strong> — hero(3색/135deg), cta(2색/90deg), subtle(50단계)</li>
+          <li><strong class="text-heading">semantic 색상 매핑 고정</strong> — Emerald=성공, Amber=주의, Rose=에러, Yellow=리뷰</li>
+          <li><strong class="text-heading">모바일 375px에서 항상 먼저 확인</strong> — 모든 컴포넌트는 375px에서 깨지지 않아야</li>
+          <li><strong class="text-heading">hover는 500 단계로</strong> — sky-400 → sky-500, violet-400 → violet-500</li>
+        </ol>
+      </div>
+    </section>
+
+  </main>
+
+  
+
+  </main>
+  <!-- ========== FOOTER ========== -->
+  <footer style="background:#1E2939">
+    <div class="max-w-7xl mx-auto px-6 py-16">
+      <div class="grid md:grid-cols-4 gap-8 mb-12">
+        <div>
+          <div class="mb-4">
+            <img src="logo-white.svg" alt="Loop" class="h-10">
+          </div>
+          <p class="text-sm" style="color:#99A1AF">Z세대를 위한 스마트 렌탈 서비스.<br>여행에 필요한 모든 것을 빌려드립니다.</p>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-white mb-3">Foundations</p>
+          <ul class="space-y-2 text-sm" style="color:#99A1AF">
+            <li><a href="#colors" class="hover:text-white transition-colors">Color Palette</a></li>
+            <li><a href="#gradients" class="hover:text-white transition-colors">Gradients</a></li>
+            <li><a href="#typography" class="hover:text-white transition-colors">Typography</a></li>
+            <li><a href="#spacing" class="hover:text-white transition-colors">Spacing</a></li>
+            <li><a href="#radius" class="hover:text-white transition-colors">Border Radius</a></li>
+            <li><a href="#shadows" class="hover:text-white transition-colors">Shadows</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-white mb-3">Components</p>
+          <ul class="space-y-2 text-sm" style="color:#99A1AF">
+            <li><a href="#buttons" class="hover:text-white transition-colors">Buttons</a></li>
+            <li><a href="#badges" class="hover:text-white transition-colors">Badges</a></li>
+            <li><a href="#forms" class="hover:text-white transition-colors">Forms</a></li>
+            <li><a href="#cards" class="hover:text-white transition-colors">Cards</a></li>
+            <li><a href="#navigation" class="hover:text-white transition-colors">Navigation</a></li>
+            <li><a href="#modals" class="hover:text-white transition-colors">Modals</a></li>
+            <li><a href="#progress" class="hover:text-white transition-colors">Progress</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-white mb-3">Tokens</p>
+          <ul class="space-y-2 text-sm" style="color:#99A1AF">
+            <li>Font: Inter (400–800)</li>
+            <li>Grid: 8pt base</li>
+            <li>Border Radius: 10px</li>
+            <li>Background: #F9FAFB</li>
+            <li>Card: #FFFFFF</li>
+            <li>Border: #E5E7EB</li>
+            <li><a href="#tokens" class="hover:text-white transition-colors">View All Tokens →</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-sm" style="color:#99A1AF">© 2026 Loop. Design System v2.1 — Built with Tailwind CSS</p>
+        <p class="text-sm" style="color:#99A1AF">Last updated: April 2026</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
