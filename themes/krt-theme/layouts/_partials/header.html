@@ -1,6 +1,6 @@
 <header class="site-header" id="site-header">
   <div class="header-container">
-    <a href="{{ "/" | relURL }}" class="logo" aria-label="홈으로 이동">
+    <a href="{{ "/" | relURL }}" class="logo" aria-label="한국렌탈테크 홈으로 이동">
       <img src="{{ "images/logo.png" | relURL }}" alt="한국렌탈테크 로고" class="logo-img">
       <span class="logo-text">
         <span class="kr">한국렌탈테크</span>
@@ -8,17 +8,19 @@
       </span>
     </a>
 
-    <nav>
+    <nav aria-label="주 메뉴">
       <ul class="nav-menu" id="nav-menu">
-        <li><a href="#services">서비스 소개</a></li>
-        <li><a href="#logistics">물류 관리</a></li>
+        <li><a href="#why">강점</a></li>
+        <li><a href="#services">서비스</a></li>
+        <li><a href="#logistics">물류</a></li>
         <li><a href="#ecommerce">자사몰</a></li>
         <li><a href="#pricing">요금제</a></li>
-        <li><a href="https://vvd.im/krt01" class="nav-cta" target="_blank">상담 신청</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="https://vvd.im/krt01" class="nav-cta" target="_blank" rel="noopener">상담 신청</a></li>
       </ul>
     </nav>
 
-    <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="메뉴 열기">
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="메뉴 열기" aria-expanded="false">
       <span></span>
       <span></span>
       <span></span>
