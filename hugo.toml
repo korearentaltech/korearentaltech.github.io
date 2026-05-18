@@ -1,4 +1,4 @@
-baseURL = 'https://korearentaltech.github.io/'
+baseURL = 'https://rentaltechkorea.com/'
 languageCode = 'ko-KR'
 title = '한국렌탈테크 | 단기 렌탈 전문 종합 솔루션'
 theme = 'krt-theme'
