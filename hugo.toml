@@ -8,9 +8,9 @@ enableRobotsTXT = true
 relativeURLs = true
 
 [params]
-  description = '고정비는 줄이고, 매출은 늘리는 단기 렌탈 전문 종합 솔루션. 공항 수령/반납 대행, 택배 발송/반납 대행, 상품 보관/세척 대행, 단기 렌탈 특화 자사몰, AI 사업 관리 시스템을 제공합니다.'
+  description = '단기 렌탈에 필요한 물류·자사몰·운영·마케팅을 하나로. 인천공항 거점 물류, 캘린더 UI 자사몰, 신용 확인, AI 사업 관리까지 — 모듈형으로 선택해 첫 달부터 부담 없이 시작하세요.'
   author = '한국렌탈테크'
-  keywords = '단기렌탈, 렌탈솔루션, 공항렌탈, 택배렌탈, 자사몰구축, 재고관리, 한국렌탈테크, Korea Rental Tech'
+  keywords = '단기렌탈, 단기렌탈솔루션, 렌탈 자사몰, 공항 수령 반납, 택배 렌탈, 인천공항 물류센터, 재고관리, 신분증 인증, 한국렌탈테크, Korea Rental Tech, Loop'
   email = 'master@korearentaltech.com'
   phone = '010-8242-2294'
 
@@ -18,16 +18,19 @@ relativeURLs = true
   ogImage = '/images/og-image.png'
   twitterCard = 'summary_large_image'
 
-  # Brand Colors (Ocean Azure Palette)
+  # Brand Colors (Loop Design System v2.1)
   [params.colors]
-    primary = '#0066CC'
-    secondary = '#3399FF'
-    accent = '#00B894'
-    text = '#1A1A2E'
-    textMuted = '#5C6B7A'
+    primary = '#00BCFF'        # Sky 400 — primary CTA
+    primaryStrong = '#00A6F4'  # Sky 500 — hover
+    secondary = '#A684FF'      # Violet 400 — secondary
+    accent = '#FF637E'         # Rose 400 — accent
+    success = '#00BC7D'        # Emerald 500
+    warning = '#FE9A00'        # Amber 500
+    text = '#101828'
+    textMuted = '#4A5565'
     background = '#FFFFFF'
-    backgroundAlt = '#F0F7FF'
-    border = '#D0E3F7'
+    backgroundAlt = '#F9FAFB'
+    border = '#E5E7EB'
 
 [markup]
   [markup.goldmark]

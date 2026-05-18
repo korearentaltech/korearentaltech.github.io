@@ -50,12 +50,11 @@
   <link rel="icon" type="image/png" sizes="16x16" href="{{ "images/favicon-16x16.png" | relURL }}">
   <link rel="apple-touch-icon" sizes="180x180" href="{{ "images/apple-touch-icon.png" | relURL }}">
   <link rel="manifest" href="{{ "manifest.json" | relURL }}">
-  <meta name="theme-color" content="#0066CC">
+  <meta name="theme-color" content="#00BCFF">
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Fonts: Pretendard Variable (Korean-optimised Inter analog) loaded via @font-face in main.css.
+       Preconnect to CDN for faster delivery. -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
   <!-- Styles -->
   {{ $style := resources.Get "css/main.css" | minify | fingerprint }}
